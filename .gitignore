@@ -1,2 +1,4 @@
 env3.9
 __pychache__
+node_modules
+.vscode

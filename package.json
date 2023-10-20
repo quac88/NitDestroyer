@@ -1,0 +1,20 @@
+{
+  "name": "ACC-CS-CLUB-ML",
+  "version": "1.0.0",
+  "description": "ACC-CS-CLUB-ML poker project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/quac88/ACC-CS-CLUB-ML.git"
+  },
+  "keywords": [],
+  "author": "Henry (Mac) Thrasher <henry.thrasher@g.austincc.edu>",
+  "license": "MIT",
+  "devDependencies": {
+    "@semantic-release/exec": "^6.0.3",
+    "semantic-release": "^22.0.5"
+  }
+}
