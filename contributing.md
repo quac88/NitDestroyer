@@ -1,0 +1,2 @@
+# Rule for contributing
+
