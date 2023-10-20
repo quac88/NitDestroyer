@@ -24,13 +24,13 @@ git push origin quac/feat/add-player-class
 
 Release Process: Once the development branch has reached a stable point and is ready for release:
 ```
-git checkout master
+git checkout main
 ```
 ```
 git merge development
 ```
 ```
-git push origin master
+git push origin main
 ```
 
 # PR Template
