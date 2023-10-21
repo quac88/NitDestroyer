@@ -1,12 +1,26 @@
 from poker.deck import Deck
 
+class Player:
+    def __init__(self, name, stack, hand, status, chips_in_play) -> None:
+        self.name: str = name
+        self.stack: float = stack # change to integer later
+        self.hand = hand
+        self.status: bool = status
+        self.bet: float = chips_in_play
+
+    def __str__(self) -> str:
+        return self.name
+
+    def post_ante(self, ante) -> None:
+        self.stack -= ante
+        self.bet += ante
 class Pot:
     def __init__(self) -> None:
         self.total: float = 0
 
     def reset_pot(self) -> None:
         self.total = 0
-    
+
     def add_to_pot(self, amount: float) -> None:
         self.total += amount
 
@@ -16,7 +30,7 @@ class Pot:
     def split_pot(self, players: list) -> None:
         for player in players:
             player.stack += self.total / len(players)
-        
+
 
 class Dealer:
     def __init__(self, deck, pot) -> None:
@@ -37,39 +51,26 @@ class Dealer:
 
     # we don't need blind setting functions for now
 
-class Player:
-    def __init__(self, name, stack, hand, status, chips_in_play) -> None:
-        self.name: str = name
-        self.stack: float = stack # change to integer later
-        self.hand = hand
-        self.status: bool = status
-        self.bet: float = chips_in_play
 
-    def __str__(self) -> str:
-        return self.name
-    
-    def post_ante(self, ante) -> None:
-        self.stack -= ante
-        self.bet += ante
 
 class Table:
     def __init__(self, seats) -> None:
         self.seats = seats
         self.seats: list[None] = [None] * seats
-    
+
     def __str__(self) -> str:
         return str(self.seats)
-    
+
     def seat_player(self, player, seat) -> None:
         self.seats[seat] = player
 
-    
 
 
 
 
 
-    
+
+
 
 
 
