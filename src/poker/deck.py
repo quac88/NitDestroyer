@@ -6,7 +6,7 @@
 # Cards package.
 
 import random
-from .card import Card
+from poker.card import Card
 
  # The Deck class is used to represent a deck of playing
  # cards each card has a suit and a rank. The deck is 
