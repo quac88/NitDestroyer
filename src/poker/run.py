@@ -1,6 +1,7 @@
 from poker.deck import Deck
 from poker.game import Pot, Dealer, Player, Table
 
+
 def main():
     # create a deck
     deck = Deck()
@@ -15,13 +16,13 @@ def main():
     # create players
     player1 = Player(name="player1", stack=200, hand=[], status=True, chips_in_play=0)
     player2 = Player(name="player2", stack=200, hand=[], status=True, chips_in_play=0)
-    players: list[Player] = [player1, player2]    
+    players: list[Player] = [player1, player2]
     # seat players
     table.seat_player(player=player1, seat=0)
     table.seat_player(player=player2, seat=1)
     # move button
     dealer.move_button(players=table.seats)
-    #print who the button is
+    # print who the button is
     print("Button: " + str(table.seats[dealer.button]))
     # post antes
     for player in players:
@@ -41,9 +42,6 @@ def main():
     print("Player1 hand: " + str(player1_hand))
     print("Player2 hand: " + str(player2_hand))
 
+
 if __name__ == "__main__":
     main()
-
-
-    
-
