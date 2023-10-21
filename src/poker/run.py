@@ -1,4 +1,4 @@
-from cardecky import Deck
+from deck import Deck
 from game import Pot, Dealer, Player, Table
 
 
@@ -14,10 +14,8 @@ def main():
     # create a table
     table = Table(seats=8)
     # create players
-    player1 = Player(name="player1", stack=200, hand=[],
-                     status=True, chips_in_play=0)
-    player2 = Player(name="player2", stack=200, hand=[],
-                     status=True, chips_in_play=0)
+    player1 = Player(name="player1", stack=200, hand=[], status=True, chips_in_play=0)
+    player2 = Player(name="player2", stack=200, hand=[], status=True, chips_in_play=0)
     players: list[Player] = [player1, player2]
     # seat players
     table.seat_player(player=player1, seat=0)
