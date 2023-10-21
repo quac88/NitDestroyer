@@ -1,5 +1,6 @@
-from deck import Deck
+from cardecky import Deck
 from dataclasses import dataclass
+
 
 @dataclass
 class Player:
@@ -46,7 +47,7 @@ class Dealer:
     def deal_hand(self, players: list[Player]):
         for player in players:
             if player is not None:  # Only deal to non-empty seats
-                player.hand = self.deck.dealCards(1)
+                player.hand = self.deck.deal_cards(1)
                 # this error can be ignored as we will never not have enough cards
 
     def move_button(self, players: list[Player]):
