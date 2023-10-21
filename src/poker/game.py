@@ -1,5 +1,5 @@
+from deck import Deck
 from dataclasses import dataclass
-
 
 @dataclass
 class Player:
@@ -7,7 +7,7 @@ class Player:
     stack: float
     hand: list
     status: bool
-    chips_in_play: float
+    chips_in_play: float  # previously was bet, renamed for consistency
 
     def __str__(self) -> str:
         return self.name
@@ -35,20 +35,21 @@ class Pot:
             player.stack += self.total / len(players)
 
 
+@dataclass
 class Dealer:
-    def __init__(self, deck, pot) -> None:
-        self.pot: float = pot
-        self.deck = deck
-        self.current_bet = 0
-        self.button = 0
+    pot: Pot
+    deck: Deck
+    current_bet: float = 0
+    button: int = 0
 
     # Rhode Island Hold'em
-    def deal_hand(self, players) -> None:
+    def deal_hand(self, players: list[Player]):
         for player in players:
             if player is not None:  # Only deal to non-empty seats
                 player.hand = self.deck.dealCards(1)
+                # this error can be ignored as we will never not have enough cards
 
-    def move_button(self, players: list) -> None:
+    def move_button(self, players: list[Player]):
         self.button = (self.button + 1) % len(players)
 
     # we don't need blind setting functions for now
