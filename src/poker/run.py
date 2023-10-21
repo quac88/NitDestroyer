@@ -1,5 +1,5 @@
-from poker.deck import Deck
-from poker.game import Pot, Dealer, Player, Table
+from deck import Deck
+from game import Pot, Dealer, Player, Table
 
 
 def main():
