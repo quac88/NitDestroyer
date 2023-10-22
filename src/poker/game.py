@@ -1,3 +1,4 @@
+from __future__ import annotations
 import random
 from cardecky import Deck
 from dataclasses import dataclass
@@ -13,23 +14,23 @@ class Player:
 
     # for printing and debugging
     def __str__(self) -> int:
-        return self.player_ID 
+        return self.player_ID
 
     # post the ante
-    def post_ante(self, ante: int, pot) -> None:
+    def post_ante(self, ante: int, pot: Pot) -> None:
         self.stack -= ante
         self.chips_in_play += ante
         pot.total += ante
 
-    # place a raise - we can't use the word raise as it is a keyword of python  
-    def raise_pot(self, amount: int, pot) -> None:
+    # place a raise - we can't use the word raise as it is a keyword of python
+    def raise_pot(self, amount: int, pot: Pot) -> None:
         self.stack -= amount
         self.chips_in_play += amount
         pot.total += amount
 
 
     # make a call
-    def call(self, amount: int, pot) -> None:
+    def call(self, amount: int, pot: Pot) -> None:
         self.stack -= amount
         self.chips_in_play += amount
         pot.total += amount
@@ -43,7 +44,7 @@ class Player:
         self.status = False
 
     def __hash__(self) -> int:
-        return hash(self.player_ID)   
+        return hash(self.player_ID)
 @dataclass
 class Pot:
     total: int = 0
@@ -91,7 +92,7 @@ class Dealer:
     # deal the flop
     def deal_flop(self) -> list:
         return self.deck.deal_cards(1)
-    
+
     def deal_turn(self) -> list:
         return self.deck.deal_cards(1)
 
@@ -113,7 +114,7 @@ class Table:
 @dataclass
 class Game:
     players: list
-    dealer: object
+    dealer: Dealer
     betting_limit: int
     current_bet: int = 0
 
