@@ -1,3 +1,4 @@
+import random
 from cardecky import Deck
 from dataclasses import dataclass
 
@@ -41,6 +42,8 @@ class Player:
     def fold(self) -> None:
         self.status = False
 
+    def __hash__(self) -> int:
+        return hash(self.player_ID)   
 @dataclass
 class Pot:
     total: int = 0
@@ -66,8 +69,8 @@ class Pot:
 class Dealer:
     pot: Pot
     deck: Deck
-    current_bet: int = 0
     button: int = 0
+    current_bet: int = 0
 
     # Rhode Island Hold'em
     def deal_hand(self, players: list[Player]) -> None:
@@ -92,6 +95,9 @@ class Dealer:
     def deal_turn(self) -> list:
         return self.deck.deal_cards(1)
 
+    def active_players_count(self, players: list[Player]):
+        return sum(1 for player in players if player.status)
+
 
 class Table:
     def __init__(self, seats) -> None:
@@ -103,3 +109,75 @@ class Table:
 
     def seat_player(self, player, seat) -> None:
         self.seats[seat] = player
+
+@dataclass
+class Game:
+    players: list
+    dealer: object
+    betting_limit: int
+    current_bet: int = 0
+
+    def betting_round(self, button, start_offset, round_limit):
+        num_players = len(self.players)
+        current_bet = 0
+        raise_occurred = True
+        last_raiser = None
+        players_acted = set()  # Track players who have acted
+
+        start_position = (button + start_offset) % num_players
+
+        while raise_occurred:
+            raise_occurred = False
+            for i in range(start_position, start_position + num_players):
+                player_position = i % num_players
+                player = self.players[player_position]
+
+                if player is None or not player.status:
+                    continue
+
+                if player in players_acted:
+                    if player != last_raiser or not raise_occurred:
+                        continue
+
+                if current_bet == 0:
+                    available_actions = [1, 3]  # check or raise
+                elif player == last_raiser:
+                    continue  # Skip the last raiser's turn if there's no re-raise after their action
+                else:
+                    available_actions = [0, 2, 3]  # fold, call, or raise
+
+                action = random.choice(available_actions)
+                players_acted.add(player)
+
+                if action == 0:
+                    player.fold()
+                    print(f"Player {player.player_ID} folded")
+                    if last_raiser:  # if there was a raise before, end the round.
+                        return
+                elif action == 1:
+                    player.check()
+                    print(f"Player {player.player_ID} checked")
+                elif action == 2:
+                    player.call(amount=current_bet, pot=self.dealer.pot)
+                    print(f"Player {player.player_ID} called {current_bet}")
+                elif action == 3:
+                    raise_amount = current_bet + round_limit
+                    player.raise_pot(amount=raise_amount, pot=self.dealer.pot)
+                    current_bet = raise_amount
+                    self.dealer.current_bet = raise_amount
+                    raise_occurred = True
+                    last_raiser = player
+                    players_acted.clear()
+                    print(f"Player {player.player_ID} raised to {raise_amount}")
+
+            if not raise_occurred:
+                break
+
+    def preflop_betting(self, button, round_limit) -> None:
+        self.betting_round(button=button, start_offset=3, round_limit=round_limit)
+
+    def flop_betting(self, button, round_limit) -> None:
+        self.betting_round(button=button, start_offset=1, round_limit=round_limit)
+
+    def turn_betting(self, button, round_limit) -> None:
+        self.betting_round(button=button, start_offset=1, round_limit=round_limit)
