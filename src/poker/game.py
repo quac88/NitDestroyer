@@ -66,21 +66,20 @@ class Dealer:
     button: int = 0
 
     # Rhode Island Hold'em
-    def deal_hand(self, players: list[Player]):
+    def deal_hand(self, players: list[Player]) -> None:
         for player in players:
             if player is not None:  # Only deal to non-empty seats
                 player.hand = self.deck.deal_cards(1)
                 # this error can be ignored as we will never not have enough cards
 
     # move the button (dealer seat) to the next player
-    def move_button(self, players: list[Player]):
+    def move_button(self, players: list[Player]) -> None:
         if players[self.button] is None:
             self.button = 0
         else:
             self.button = (self.button + 1) % len(players)
 
     # we don't need blind setting functions for now
-
 
 class Table:
     def __init__(self, seats) -> None:
