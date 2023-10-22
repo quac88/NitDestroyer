@@ -55,8 +55,12 @@ class Dealer:
                 player.hand = self.deck.deal_cards(1)
                 # this error can be ignored as we will never not have enough cards
 
+    # move the button (dealer seat) to the next player
     def move_button(self, players: list[Player]):
-        self.button = (self.button + 1) % len(players)
+        if players[self.button] is None:
+            self.button = 0
+        else:
+            self.button = (self.button + 1) % len(players)
 
     # we don't need blind setting functions for now
 
