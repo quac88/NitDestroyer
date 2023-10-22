@@ -4,28 +4,30 @@ from dataclasses import dataclass
 
 @dataclass
 class Player:
-    name: str
-    stack: float
-    hand: list
-    status: bool
-    chips_in_play: float  # previously was bet, renamed for consistency
+    player_ID: int # unique identifier
+    stack: int # chips in stack
+    hand: list # list of cards
+    status: bool # True = active, False = folded
+    chips_in_play: int # chips in play for current hand
 
-    def __str__(self) -> str:
-        return self.name
+    # for printing and debugging
+    def __str__(self) -> int:
+        return self.player_ID 
 
-    def post_ante(self, ante: float) -> None:
+    # post the ante
+    def post_ante(self, ante: int) -> None:
         self.stack -= ante
         self.chips_in_play += ante
 
 
 @dataclass
 class Pot:
-    total: float = 0
+    total: int = 0
 
     def reset_pot(self) -> None:
         self.total = 0
 
-    def add_to_pot(self, amount: float) -> None:
+    def add_to_pot(self, amount: int) -> None:
         self.total += amount
 
     def award_pot(self, player: Player) -> None:
@@ -40,7 +42,7 @@ class Pot:
 class Dealer:
     pot: Pot
     deck: Deck
-    current_bet: float = 0
+    current_bet: int = 0
     button: int = 0
 
     # Rhode Island Hold'em
