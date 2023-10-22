@@ -33,9 +33,12 @@ class Pot:
     def award_pot(self, player: Player) -> None:
         player.stack += self.total
 
+    # split the pot between all active players (last standing players)
     def split_pot(self, players: list[Player]) -> None:
-        for player in players:
-            player.stack += self.total / len(players)
+    active_players = [player for player in players if player.status]
+    for player in active_players:
+        player.stack += self.total / len(active_players)
+
 
 
 @dataclass
