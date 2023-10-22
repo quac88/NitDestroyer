@@ -41,9 +41,6 @@ class Player:
     def fold(self) -> None:
         self.status = False
 
-    def __hash__(self):
-        return hash(self.player_ID)
-
 @dataclass
 class Pot:
     total: int = 0
