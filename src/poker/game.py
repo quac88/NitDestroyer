@@ -24,6 +24,18 @@ class Player:
         self.stack -= amount
         self.chips_in_play += amount
 
+    # make a call
+    def call(self, amount: int) -> None:
+        self.stack -= amount
+        self.chips_in_play += amount
+
+    # check
+    def check(self) -> None:
+        pass
+
+    
+
+
 @dataclass
 class Pot:
     total: int = 0
