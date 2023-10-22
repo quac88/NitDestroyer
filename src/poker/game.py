@@ -19,6 +19,10 @@ class Player:
         self.stack -= ante
         self.chips_in_play += ante
 
+    # place a raise - we can't use the word raise as it is a keyword of python  
+    def raise_pot(self, amount: int) -> None:
+        self.stack -= amount
+        self.chips_in_play += amount
 
 @dataclass
 class Pot:
@@ -35,9 +39,9 @@ class Pot:
 
     # split the pot between all active players (last standing players)
     def split_pot(self, players: list[Player]) -> None:
-    active_players = [player for player in players if player.status]
-    for player in active_players:
-        player.stack += self.total / len(active_players)
+        active_players = [player for player in players if player.status]
+        for player in active_players:
+            player.stack += self.total / len(active_players)
 
 
 
