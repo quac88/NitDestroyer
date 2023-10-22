@@ -15,19 +15,23 @@ class Player:
         return self.player_ID 
 
     # post the ante
-    def post_ante(self, ante: int) -> None:
+    def post_ante(self, ante: int, pot) -> None:
         self.stack -= ante
         self.chips_in_play += ante
+        pot.total += ante
 
     # place a raise - we can't use the word raise as it is a keyword of python  
-    def raise_pot(self, amount: int) -> None:
+    def raise_pot(self, amount: int, pot) -> None:
         self.stack -= amount
         self.chips_in_play += amount
+        pot.total += amount
+
 
     # make a call
-    def call(self, amount: int) -> None:
+    def call(self, amount: int, pot) -> None:
         self.stack -= amount
         self.chips_in_play += amount
+        pot.total += amount
 
     # check
     def check(self) -> None:
@@ -36,6 +40,9 @@ class Player:
     # fold
     def fold(self) -> None:
         self.status = False
+
+    def __hash__(self):
+        return hash(self.player_ID)
 
 @dataclass
 class Pot:
@@ -80,6 +87,14 @@ class Dealer:
             self.button = (self.button + 1) % len(players)
 
     # we don't need blind setting functions for now
+
+    # deal the flop
+    def deal_flop(self) -> list:
+        return self.deck.deal_cards(1)
+    
+    def deal_turn(self) -> list:
+        return self.deck.deal_cards(1)
+
 
 class Table:
     def __init__(self, seats) -> None:
