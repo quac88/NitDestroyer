@@ -33,8 +33,9 @@ class Player:
     def check(self) -> None:
         pass
 
-    
-
+    # fold
+    def fold(self) -> None:
+        self.status = False
 
 @dataclass
 class Pot:
