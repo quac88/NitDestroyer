@@ -1,6 +1,6 @@
 from __future__ import annotations
 import random
-from cardecky import Deck
+from cardecky import Deck, HandRanker
 
 class Player:
     def __init__(self, player_ID: int, stack: int, hand: list, status: bool, chips_in_play: int) -> None:
@@ -11,8 +11,8 @@ class Player:
         self.chips_in_play: int = chips_in_play
 
     # for printing and debugging
-    def __str__(self) -> int:
-        return self.player_ID
+    def __str__(self) -> str:
+        return str(self.player_ID)
 
     # post the ante
     def post_ante(self, ante: int, pot: Pot) -> None:
@@ -178,3 +178,18 @@ class Game:
 
     def turn_betting(self, button, round_limit) -> None:
         self.betting_round(button=button, start_offset=1, round_limit=round_limit)
+
+    def determine_winner(self) -> Player:
+        best_rank = (float('inf'),)
+        best_player = None
+
+        for player in self.players:
+            if player and player.status:
+                rank = HandRanker.rank_hand(cards=player.hand)
+                if rank < best_rank:
+                    best_rank = rank
+                    best_player = player
+        
+        return best_player
+
+
