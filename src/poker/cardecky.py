@@ -56,3 +56,42 @@ class Deck:
         for c in self.deck:
             tmp_deck += str(c) + " "
         return tmp_deck
+    
+class HandRanker:
+    RANK_ORDER: list[str] = ['2', '3', '4', '5', '6', '7', '8', '9', '0', 'J', 'Q', 'K', 'A']
+    
+    @staticmethod
+    def is_straight(cards) -> bool:
+        indices: list[int] = sorted([HandRanker.RANK_ORDER.index(card.rank) for card in cards])
+        return indices[2] - indices[1] == indices[1] - indices[0] == 1
+
+    @staticmethod
+    def is_flush(cards) -> bool:
+        return len(set(card.suit for card in cards)) == 1
+
+    @staticmethod
+    def rank_counts(cards):
+        ranks = [card.rank for card in cards]
+        return {rank: ranks.count(rank) for rank in set(ranks)}
+    
+    @staticmethod
+    def rank_hand(cards):
+        if HandRanker.is_straight(cards) and HandRanker.is_flush(cards):
+            return (1, sorted([card.rank for card in cards], key=lambda x: HandRanker.RANK_ORDER.index(x), reverse=True))
+        
+        counts = HandRanker.rank_counts(cards)
+        if 3 in counts.values():
+            return (2, [card.rank for card in cards if counts[card.rank] == 3][0])
+        
+        if HandRanker.is_straight(cards=cards):
+            return (3, sorted([card.rank for card in cards], key=lambda x: HandRanker.RANK_ORDER.index(x), reverse=True))
+        
+        if HandRanker.is_flush(cards=cards):
+            return (4, sorted([card.rank for card in cards], key=lambda x: HandRanker.RANK_ORDER.index(x), reverse=True))
+        
+        if 2 in counts.values():
+            pair_card = [card.rank for card in cards if counts[card.rank] == 2][0]
+            non_pair_card = [card.rank for card in cards if counts[card.rank] == 1][0]
+            return (5, (pair_card, non_pair_card))
+        
+        return (6, sorted([card.rank for card in cards], key=lambda x: HandRanker.RANK_ORDER.index(x), reverse=True))
