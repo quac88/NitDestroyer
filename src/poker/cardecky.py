@@ -1,23 +1,18 @@
 import random
-from dataclasses import dataclass, field
 
 # Card and Deck classes combined into one file
 # Uses dataclass and field for simplicity
 
-
-@dataclass
 class Card:
-    suit: str
-    rank: str
-
-    def __post_init__(self):
+    def __init__(self, suit: str, rank: str):
+        self.suit = suit
+        self.rank = rank
         self.card = self.rank + self.suit
 
     def __repr__(self) -> str:
         return self.card
 
 
-@dataclass
 class Deck:
     deck: list = field(default_factory=list, init=False)
     cards_used: int = 0
