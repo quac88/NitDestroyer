@@ -45,6 +45,7 @@ class Player:
 
     def __hash__(self) -> int:
         return hash(self.player_ID)
+    
 @dataclass
 class Pot:
     total: int = 0
@@ -63,8 +64,6 @@ class Pot:
         active_players = [player for player in players if player.status]
         for player in active_players:
             player.stack += self.total / len(active_players)
-
-
 
 @dataclass
 class Dealer:
@@ -118,14 +117,14 @@ class Game:
     betting_limit: int
     current_bet: int = 0
 
-    def betting_round(self, button, start_offset, round_limit):
+    def betting_round(self, button, start_offset, round_limit) -> None:
         num_players = len(self.players)
-        current_bet = 0
-        raise_occurred = True
-        last_raiser = None
+        current_bet = 0 # Track the current bet
+        raise_occurred = True # Track if a raise occurred
+        last_raiser = None # Track the last raiser
         players_acted = set()  # Track players who have acted
 
-        start_position = (button + start_offset) % num_players
+        start_position = (button + start_offset) % num_players # start at three players left of the button preflop and one player left postflop
 
         while raise_occurred:
             raise_occurred = False
@@ -133,10 +132,10 @@ class Game:
                 player_position = i % num_players
                 player = self.players[player_position]
 
-                if player is None or not player.status:
+                if player is None or not player.status: # Skip empty seats and folded players
                     continue
 
-                if player in players_acted:
+                if player in players_acted: 
                     if player != last_raiser or not raise_occurred:
                         continue
 
