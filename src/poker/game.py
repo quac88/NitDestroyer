@@ -3,14 +3,13 @@ import random
 from cardecky import Deck
 from dataclasses import dataclass
 
-
-@dataclass
 class Player:
-    player_ID: int # unique identifier
-    stack: int # chips in stack
-    hand: list # list of cards
-    status: bool # True = active, False = folded
-    chips_in_play: int # chips in play for current hand
+    def __init__(self, player_ID: int, stack: int, hand: list, status: bool, chips_in_play: int) -> None:
+        self.player_ID: int = player_ID
+        self.stack: int = stack
+        self.hand = hand
+        self.status: bool = status
+        self.chips_in_play: int = chips_in_play
 
     # for printing and debugging
     def __str__(self) -> int:
@@ -46,9 +45,9 @@ class Player:
     def __hash__(self) -> int:
         return hash(self.player_ID)
     
-@dataclass
 class Pot:
-    total: int = 0
+    def __init__(self, total: int = 0) -> None:
+        self.total: int = total
 
     def reset_pot(self) -> None:
         self.total = 0
@@ -67,10 +66,11 @@ class Pot:
 
 @dataclass
 class Dealer:
-    pot: Pot
-    deck: Deck
-    button: int = 0
-    current_bet: int = 0
+    def __init__(self, pot: Pot, deck: Deck, button: int = 0, current_bet: int = 0):
+        self.pot: Pot = pot
+        self.deck: Deck = deck
+        self.button: int = button
+        self.current_bet: int = current_bet
 
     # Rhode Island Hold'em
     def deal_hand(self, players: list[Player]) -> None:
@@ -101,35 +101,34 @@ class Dealer:
 
 class Table:
     def __init__(self, seats) -> None:
-        self.seats = seats
         self.seats: list[None] = [None] * seats
 
     def __str__(self) -> str:
-        return str(self.seats)
+        return str(object=self.seats)
 
     def seat_player(self, player, seat) -> None:
         self.seats[seat] = player
 
-@dataclass
 class Game:
-    players: list
-    dealer: Dealer
-    betting_limit: int
-    current_bet: int = 0
+    def __init__(self, players: list, dealer: Dealer, betting_limit: int, current_bet: int = 0) -> None:
+        self.players: list = players
+        self.dealer: Dealer = dealer
+        self.betting_limit: int = betting_limit
+        self.current_bet: int = current_bet
+        self.num_players: int = len(self.players)
 
     def betting_round(self, button, start_offset, round_limit) -> None:
-        num_players = len(self.players)
         current_bet = 0 # Track the current bet
         raise_occurred = True # Track if a raise occurred
         last_raiser = None # Track the last raiser
         players_acted = set()  # Track players who have acted
 
-        start_position = (button + start_offset) % num_players # start at three players left of the button preflop and one player left postflop
+        start_position = (button + start_offset) % self.num_players # start at three players left of the button preflop and one player left postflop
 
         while raise_occurred:
             raise_occurred = False
-            for i in range(start_position, start_position + num_players):
-                player_position = i % num_players
+            for i in range(start_position, start_position + self.num_players):
+                player_position = i % self.num_players
                 player = self.players[player_position]
 
                 if player is None or not player.status: # Skip empty seats and folded players
