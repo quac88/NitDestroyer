@@ -1,7 +1,6 @@
 from __future__ import annotations
 import random
 from cardecky import Deck
-from dataclasses import dataclass
 
 class Player:
     def __init__(self, player_ID: int, stack: int, hand: list, status: bool, chips_in_play: int) -> None:
