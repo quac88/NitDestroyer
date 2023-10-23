@@ -63,7 +63,6 @@ class Pot:
         for player in active_players:
             player.stack += self.total / len(active_players)
 
-@dataclass
 class Dealer:
     def __init__(self, pot: Pot, deck: Deck, button: int = 0, current_bet: int = 0):
         self.pot: Pot = pot
