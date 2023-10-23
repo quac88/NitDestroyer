@@ -62,7 +62,9 @@ class HandRanker:
     
     @staticmethod
     def is_straight(cards) -> bool:
-        indices: list[int] = sorted([HandRanker.RANK_ORDER.index(card.rank) for card in cards])
+        if len(cards) < 3:
+            return False
+        indices = sorted([HandRanker.RANK_ORDER.index(card.rank) for card in cards])
         return indices[2] - indices[1] == indices[1] - indices[0] == 1
 
     @staticmethod
