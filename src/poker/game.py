@@ -136,14 +136,15 @@ class Game:
 
         while raise_occurred:
             raise_occurred = False
-            for i in range(start_position, start_position + self.num_players):
-                player_position = i % self.num_players
-                player = self.players[player_position]
+            for i in range(self.num_players): # Iterate through the players
+                current_player = (i + start_position) % self.num_players
+
+                player = self.players[current_player]  # Assign the player for the current turn
 
                 if player is None or not player.status: # Skip empty seats and folded players
                     continue
 
-                if player in players_acted: 
+                if player in players_acted:  
                     if player != last_raiser or not raise_occurred:
                         continue
 
@@ -160,8 +161,6 @@ class Game:
                 if action == 0:
                     player.fold()
                     print(f"Player {player.player_ID} folded")
-                    if last_raiser:  # if there was a raise before, end the round.
-                        return
                 elif action == 1:
                     player.check()
                     print(f"Player {player.player_ID} checked")
@@ -180,6 +179,7 @@ class Game:
 
             if not raise_occurred:
                 break
+
 
     def preflop_betting(self, button, round_limit) -> None:
         self.betting_round(button=button, start_offset=3, round_limit=round_limit)
