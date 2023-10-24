@@ -71,9 +71,7 @@ class Pot:
         # award any leftover chips to the first player in the list
         leftover: int = self.total - split_amount * len(winners)
         winners[0].stack += leftover
-        # Reset pot after awarding
-        self.reset_pot()
-
+        
 class Dealer:
     def __init__(self, pot: Pot, deck: Deck, button: int = 0, current_bet: int = 0):
         self.pot: Pot = pot
@@ -101,11 +99,28 @@ class Dealer:
     def deal_flop(self) -> list:
         return self.deck.deal_cards(1)
 
+    # deal the turn
     def deal_turn(self) -> list:
         return self.deck.deal_cards(1)
 
+    # count the number of active players
     def active_players_count(self, players: list[Player]):
         return sum(1 for player in players if player.status)
+    
+    # determine the winner
+    def determine_winner(self, players: list[Player]) -> Player:
+        best_rank = float('inf')  # Initialize to infinity
+        winning_player = None
+
+        for player in players:
+            if player.status:  # If the player is still active
+                rank, _ = HandRanker.rank_hand(player.hand)
+                if rank < best_rank:
+                    best_rank = rank
+                    winning_player = player
+                # Handle tie-breakers as needed
+
+        return winning_player
 
 
 class Table:
@@ -180,7 +195,6 @@ class Game:
             if not raise_occurred:
                 break
 
-
     def preflop_betting(self, button, round_limit) -> None:
         self.betting_round(button=button, start_offset=3, round_limit=round_limit)
 
@@ -189,8 +203,3 @@ class Game:
 
     def turn_betting(self, button, round_limit) -> None:
         self.betting_round(button=button, start_offset=1, round_limit=round_limit)
-
-
-    
-
-
