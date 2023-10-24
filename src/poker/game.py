@@ -16,12 +16,18 @@ class Player:
 
     # post the ante
     def post_ante(self, ante: int, pot: Pot) -> None:
+        # check if the player has enough chips to post the ante
+        if ante > self.stack:
+            ante = self.stack
         self.stack -= ante
         self.chips_in_play += ante
         pot.total += ante
 
     # place a raise - we can't use the word raise as it is a keyword of python
     def raise_pot(self, amount: int, pot: Pot) -> None:
+        # check if the player has enough chips to raise
+        if amount > self.stack:
+            amount = self.stack
         self.stack -= amount
         self.chips_in_play += amount
         pot.total += amount
@@ -29,6 +35,9 @@ class Player:
 
     # make a call
     def call(self, amount: int, pot: Pot) -> None:
+        # check if the player has enough chips to call
+        if amount > self.stack:
+            amount = self.stack
         self.stack -= amount
         self.chips_in_play += amount
         pot.total += amount
@@ -54,14 +63,16 @@ class Pot:
     def add_to_pot(self, amount: int) -> None:
         self.total += amount
 
-    def award_pot(self, player: Player) -> None:
-        player.stack += self.total
-
-    # split the pot between all active players (last standing players)
-    def split_pot(self, players: list[Player]) -> None:
-        active_players = [player for player in players if player.status]
-        for player in active_players:
-            player.stack += self.total / len(active_players)
+    def award_pot(self, winners: list[Player]) -> None:
+        # Split pot among winners
+        split_amount = self.total // len(winners) # Using integer division for clarity
+        for winner in winners:
+            winner.stack += split_amount
+        # award any leftover chips to the first player in the list
+        leftover: int = self.total - split_amount * len(winners)
+        winners[0].stack += leftover
+        # Reset pot after awarding
+        self.reset_pot()
 
 class Dealer:
     def __init__(self, pot: Pot, deck: Deck, button: int = 0, current_bet: int = 0):
@@ -179,17 +190,7 @@ class Game:
     def turn_betting(self, button, round_limit) -> None:
         self.betting_round(button=button, start_offset=1, round_limit=round_limit)
 
-    def determine_winner(self) -> Player:
-        best_rank = (float('inf'),)
-        best_player = None
 
-        for player in self.players:
-            if player and player.status:
-                rank = HandRanker.rank_hand(cards=player.hand)
-                if rank < best_rank:
-                    best_rank = rank
-                    best_player = player
-        
-        return best_player
+    
 
 
