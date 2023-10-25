@@ -119,6 +119,3 @@ class HandRanker:
         # High Card
         high_cards = tuple(sorted(cards, key=HandRanker.rank_value, reverse=True))
         return (6, *high_cards)
-
-# Rest of your code remains the same...
-

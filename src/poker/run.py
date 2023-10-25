@@ -1,3 +1,4 @@
+import timeit
 from cardecky import Deck
 from game import Pot, Dealer, Player, Table, Game
 
@@ -72,7 +73,7 @@ def play_round(players, dealer, pot, game, button):
                 print(f"\nPlayer {winner.player_ID} wins with hand: {winner.hand} and is awarded a share of the pot!")
         pot.reset_pot()
 
-NUM_ROUNDS = 2
+NUM_ROUNDS = 10
 def main() -> None:
     # Initial setup
     deck = Deck()
@@ -95,7 +96,9 @@ def main() -> None:
         for player in players:
             print(f"Player{player.player_ID} chip count: {player.stack}")  # Update chip stacks
         button = (button + 1) % len(players)  # Move the button
-        
 
+    
 if __name__ == "__main__":
-    main()
+    # check the time it takes to run
+    execution_time = timeit.timeit(main, number=1)
+    print(f"Execution time for {NUM_ROUNDS} rounds: {execution_time:.9f} seconds")    
