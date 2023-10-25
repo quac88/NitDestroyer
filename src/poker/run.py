@@ -1,3 +1,4 @@
+from multiprocessing import Pool
 import timeit
 from cardecky import Deck
 from game import Pot, Dealer, Player, Table, Game
@@ -73,7 +74,15 @@ def play_round(players, dealer, pot, game, button):
                 print(f"\nPlayer {winner.player_ID} wins with hand: {winner.hand} and is awarded a share of the pot!")
         pot.reset_pot()
 
-NUM_ROUNDS = 10
+def play_round_wrapper(args):
+    players, dealer, pot, game, button, round_number = args
+    print(f"\n========== ROUND {round_number} ==========")
+    play_round(players=players, dealer=dealer, pot=pot, game=game, button=button)
+    for player in players:
+        print(f"Player{player.player_ID} chip count: {player.stack}")  # Update chip stacks
+    button = (button + 1) % len(players)  # Move the button
+
+NUM_ROUNDS = 1000000
 def main() -> None:
     # Initial setup
     deck = Deck()
@@ -89,14 +98,10 @@ def main() -> None:
     button = dealer.button
     game = Game(players=players, dealer=dealer, betting_limit=PRE_FLOP_LIMIT)
 
-    # Play 10 rounds
-    for i in range(NUM_ROUNDS):
-        print(f"\n========== ROUND {i + 1} ==========")
-        play_round(players=players, dealer=dealer, pot=pot, game=game, button=button)
-        for player in players:
-            print(f"Player{player.player_ID} chip count: {player.stack}")  # Update chip stacks
-        button = (button + 1) % len(players)  # Move the button
-
+    # Create a pool of processes
+    with Pool(processes=20) as pool:  # Adjust the number of processes as needed
+        args = [(players, dealer, pot, game, button, i + 1) for i in range(NUM_ROUNDS)]
+        pool.map(play_round_wrapper, args)
     
 if __name__ == "__main__":
     # check the time it takes to run
