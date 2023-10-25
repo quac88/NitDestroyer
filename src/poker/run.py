@@ -1,3 +1,5 @@
+from tqdm import tqdm
+import time
 from multiprocessing import Pool
 import timeit
 from cardecky import Deck
@@ -82,7 +84,7 @@ def play_round_wrapper(args):
         print(f"Player{player.player_ID} chip count: {player.stack}")  # Update chip stacks
     button = (button + 1) % len(players)  # Move the button
 
-NUM_ROUNDS = 1000000
+NUM_ROUNDS = 1_000_000
 def main() -> None:
     # Initial setup
     deck = Deck()
@@ -98,10 +100,13 @@ def main() -> None:
     button = dealer.button
     game = Game(players=players, dealer=dealer, betting_limit=PRE_FLOP_LIMIT)
 
-    # Create a pool of processes
-    with Pool(processes=20) as pool:  # Adjust the number of processes as needed
-        args = [(players, dealer, pot, game, button, i + 1) for i in range(NUM_ROUNDS)]
-        pool.map(play_round_wrapper, args)
+    # Create a tqdm progress bar
+    with tqdm(total=NUM_ROUNDS, desc="Rounds", disable=True) as progress_bar:
+        # Create a pool of processes
+        with Pool(processes=20) as pool:  # Adjust the number of processes as needed
+            args = [(players, dealer, pot, game, button, i + 1) for i in range(NUM_ROUNDS)]
+            for _ in pool.imap_unordered(play_round_wrapper, args):
+                progress_bar.update(1)  # Update the progress bar for each completed round
     
 if __name__ == "__main__":
     # check the time it takes to run
