@@ -10,6 +10,12 @@ TURN_LIMIT = 4
 START_STACK = 200
 
 def play_round(players, dealer, pot, game, button):
+    # reset each player's hand and status
+    for player in players:
+        player.hand = []
+        player.status = True
+        player.chips_in_play = 0
+
     # shuffle the deck
     dealer.deck.shuffle()
 
@@ -29,6 +35,9 @@ def play_round(players, dealer, pot, game, button):
 
     if dealer.active_players_count(players=players) <= 1:
         print("Only one player remains. The hand is over.")
+        winners = [player for player in players if player.status]
+        pot.award_pot(winners)
+        pot.reset_pot()
         return
 
     # Deal the flop and betting for flop
@@ -40,6 +49,9 @@ def play_round(players, dealer, pot, game, button):
 
     if dealer.active_players_count(players=players) <= 1:
         print("Only one player remains. The hand is over.")
+        winners = [player for player in players if player.status]
+        pot.award_pot(winners)
+        pot.reset_pot()
         return
 
     # Deal the turn and betting for turn
@@ -48,15 +60,20 @@ def play_round(players, dealer, pot, game, button):
     print(f"Turn card: {turn}")
     game.turn_betting(button=button, round_limit=TURN_LIMIT)
     print(f"Pot total after TURN: {pot.total}")
+    if dealer.active_players_count(players=players) <= 1:
+        print("Only one player remains. The hand is over.")
+        pot.award_pot([player for player in players if player.status])
+        pot.reset_pot()
+    else:
+        winners = dealer.determine_winner(players=players)
+        if winners:
+            pot.award_pot(winners)
+            for winner in winners:
+                print(f"\nPlayer {winner.player_ID} wins with hand: {winner.hand} and is awarded a share of the pot!")
+        pot.reset_pot()
 
-    winner = dealer.determine_winner(players=players)
-    if winner:
-        pot.award_pot([winner])  # assuming there's always a single winner
-        print(f"\nPlayer {winner.player_ID} wins with hand: {winner.hand} and is awarded the pot of {pot.total} chips!")
-    pot.reset_pot()
-
-NUM_ROUNDS = 10
-def main():
+NUM_ROUNDS = 2
+def main() -> None:
     # Initial setup
     deck = Deck()
     pot = Pot()
@@ -75,10 +92,10 @@ def main():
     for i in range(NUM_ROUNDS):
         print(f"\n========== ROUND {i + 1} ==========")
         play_round(players=players, dealer=dealer, pot=pot, game=game, button=button)
-        button = (button + 1) % len(players)  # Move the button
         for player in players:
             print(f"Player{player.player_ID} chip count: {player.stack}")  # Update chip stacks
-
+        button = (button + 1) % len(players)  # Move the button
+        
 
 if __name__ == "__main__":
     main()
