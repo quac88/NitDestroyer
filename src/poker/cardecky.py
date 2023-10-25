@@ -1,30 +1,39 @@
 import random
+from enum import Enum
+from typing import List
 
-# Card and Deck classes combined into one file
-# Uses dataclass and field for simplicity
+class Rank(Enum):
+    TWO = 2
+    THREE = 3
+    FOUR = 4
+    FIVE = 5
+    SIX = 6
+    SEVEN = 7
+    EIGHT = 8
+    NINE = 9
+    TEN = 10
+    JACK = 11
+    QUEEN = 12
+    KING = 13
+    ACE = 14
+
+class Suit(Enum):
+    CLUBS = 'C'
+    DIAMONDS = 'D'
+    HEARTS = 'H'
+    SPADES = 'S'
 
 class Card:
-    def __init__(self, suit: str, rank: str) -> None:
-        self.suit: str = suit
-        self.rank: str = rank
-        self.card: str = self.rank + self.suit
+    def __init__(self, rank: Rank, suit: Suit) -> None:
+        self.rank = rank
+        self.suit = suit
 
     def __repr__(self) -> str:
-        return self.card
-
-
+        return f"{self.rank.name}{self.suit.value}"
 class Deck:
     def __init__(self) -> None:
-        self.deck: list = []
+        self.deck = [Card(rank, suit) for rank in Rank for suit in Suit]
         self.cards_used = 0
-        self.suits: list[str] = ['C', 'H', 'D', 'S']
-        self.ranks: list[str] = ['2', '3', '4', '5', '6', '7', '8', '9', '0', 'J', 'Q', 'K', 'A']
-        self._initialize_deck()
-
-    def _initialize_deck(self) -> None:
-        for suit in self.suits:
-            for rank in self.ranks:
-                self.deck.append(Card(suit=suit, rank=rank))
 
     def shuffle(self) -> None:
         random.shuffle(self.deck)
@@ -48,7 +57,9 @@ class Deck:
         else:
             deal = []
             for i in range(num):
-                deal.append(self.deal_card())
+                card = self.deal_card()
+                if card:
+                    deal.append(card)
             return deal
 
     def __str__(self) -> str:
@@ -56,3 +67,55 @@ class Deck:
         for c in self.deck:
             tmp_deck += str(c) + " "
         return tmp_deck
+
+class HandRanker:
+    @staticmethod
+    def rank_value(card):
+        return card.rank.value
+    
+    @staticmethod
+    def is_straight(cards: List[Card]) -> bool:
+        ranks = [card.rank.value for card in cards]
+        sorted_ranks = sorted(ranks)
+        return sorted_ranks[-1] - sorted_ranks[0] == len(cards) - 1
+
+    @staticmethod
+    def is_flush(cards):
+        return len(set(card.suit for card in cards)) == 1
+
+    @staticmethod
+    def rank_counts(cards):# -> dict[Any, int]:
+        ranks = [card.rank for card in cards]
+        return {rank: ranks.count(rank) for rank in set(ranks)}
+
+    @staticmethod
+    def rank_hand(cards):
+        counts = HandRanker.rank_counts(cards)
+        
+        # Straight Flush
+        if HandRanker.is_straight(cards) and HandRanker.is_flush(cards):
+            return (1, max(cards, key=HandRanker.rank_value).rank)
+        
+        # Three of a kind
+        three_card = next((card for card, count in counts.items() if count == 3), None)
+        if three_card:
+            return (2, three_card)
+        
+        # Straight
+        if HandRanker.is_straight(cards):
+            return (3, max(cards, key=HandRanker.rank_value).rank)
+        
+        # Flush
+        if HandRanker.is_flush(cards):
+            sorted_flush_cards = tuple(sorted(cards, key=HandRanker.rank_value, reverse=True))
+            return (4, *sorted_flush_cards)
+        
+        # Pair
+        pair_card = next((card for card, count in counts.items() if count == 2), None)
+        if pair_card:
+            non_pair_cards = sorted([card for card in cards if card.rank != pair_card], key=HandRanker.rank_value, reverse=True)
+            return (5, pair_card, non_pair_cards[0].rank)
+        
+        # High Card
+        high_cards = tuple(sorted(cards, key=HandRanker.rank_value, reverse=True))
+        return (6, *high_cards)
