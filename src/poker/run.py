@@ -1,4 +1,4 @@
-from qqdm import qqdm, format_str
+from qqdm import qqdm
 import time
 from multiprocessing import Pool
 import timeit
