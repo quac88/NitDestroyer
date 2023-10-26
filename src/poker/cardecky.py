@@ -3,6 +3,7 @@ from enum import Enum
 from typing import List
 
 class Rank(Enum):
+    """Rank of a card."""
     TWO = 2
     THREE = 3
     FOUR = 4
@@ -18,6 +19,7 @@ class Rank(Enum):
     ACE = 14
 
 class Suit(Enum):
+    """Suit of a card."""
     CLUBS = 'C'
     DIAMONDS = 'D'
     HEARTS = 'H'
@@ -25,10 +27,11 @@ class Suit(Enum):
 
 class Card:
     def __init__(self, rank: Rank, suit: Suit) -> None:
-        self.rank = rank
-        self.suit = suit
+        self.rank: Rank = rank
+        self.suit: Suit = suit
 
     def __repr__(self) -> str:
+        """Representation of a card."""
         return f"{self.rank.name}{self.suit.value}"
 class Deck:
     def __init__(self) -> None:
@@ -36,13 +39,16 @@ class Deck:
         self.cards_used = 0
 
     def shuffle(self) -> None:
+        """Shuffle the deck."""
         random.shuffle(self.deck)
         self.cards_used = 0
 
-    def cardsLeft(self):
+    def cardsLeft(self) -> int:
+        """Return the number of cards left in the deck."""
         return len(self.deck) - self.cards_used
 
-    def deal_card(self):
+    def deal_card(self) -> Card | None:
+        """Deal a card from the deck."""
         if self.cards_used >= len(self.deck):
             print("Error: There are no cards left in the deck.")
             return None
@@ -51,6 +57,7 @@ class Deck:
             return self.deck[self.cards_used - 1]
 
     def deal_cards(self, num):
+        """Deal a number of cards from the deck."""
         if (self.cards_used + num) > len(self.deck):
             print("Error: There are not enough cards left in the deck.")
             return []
@@ -63,6 +70,7 @@ class Deck:
             return deal
 
     def __str__(self) -> str:
+        """Representation of the deck."""
         tmp_deck = "Deck: "
         for c in self.deck:
             tmp_deck += str(c) + " "
@@ -71,25 +79,30 @@ class Deck:
 class HandRanker:
     @staticmethod
     def rank_value(card):
+        """Return the value of a card."""
         return card.rank.value
     
     @staticmethod
     def is_straight(cards: List[Card]) -> bool:
+        """Return True if the cards are a straight, False otherwise."""
         ranks = [card.rank.value for card in cards]
         sorted_ranks = sorted(ranks)
         return sorted_ranks[-1] - sorted_ranks[0] == len(cards) - 1
 
     @staticmethod
-    def is_flush(cards):
+    def is_flush(cards) -> bool:
+        """Return True if the cards are a flush, False otherwise."""
         return len(set(card.suit for card in cards)) == 1
 
     @staticmethod
-    def rank_counts(cards):# -> dict[Any, int]:
+    def rank_counts(cards):
+        """Return a dictionary of the rank counts."""
         ranks = [card.rank for card in cards]
         return {rank: ranks.count(rank) for rank in set(ranks)}
 
     @staticmethod
     def rank_hand(cards):
+        """Return the rank of the hand."""
         counts = HandRanker.rank_counts(cards)
         
         # Straight Flush
