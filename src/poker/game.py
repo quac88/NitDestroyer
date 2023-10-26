@@ -177,13 +177,10 @@ class Game:
 
                 if action == PlayerAction.FOLD:
                     player.fold()
-                    print(f"Player {player.player_ID} folded")
                 elif action == PlayerAction.CHECK:
                     player.check()
-                    print(f"Player {player.player_ID} checked")
                 elif action == PlayerAction.CALL:
                     player.call(amount=current_bet, pot=self.dealer.pot)
-                    print(f"Player {player.player_ID} called {current_bet}")
                 elif action == PlayerAction.RAISE:
                     raise_amount = current_bet + round_limit
                     player.bet(amount=raise_amount, pot=self.dealer.pot)
@@ -192,8 +189,6 @@ class Game:
                     raise_occurred = True
                     last_raiser = player
                     players_acted.clear()
-                    print(f"Player {player.player_ID} raised to {raise_amount}")
-
             if not raise_occurred:
                 break
 
@@ -205,3 +200,5 @@ class Game:
 
     def turn_betting(self, button, round_limit):
         self.betting_round(button=button, start_offset=1, round_limit=round_limit)
+
+
