@@ -47,7 +47,7 @@ class Deck:
         """Return the number of cards left in the deck."""
         return len(self.deck) - self.cards_used
 
-    def deal_card(self) -> Card | None:
+    def deal_card(self) -> Card:
         """Deal a card from the deck."""
         if self.cards_used >= len(self.deck):
             print("Error: There are no cards left in the deck.")
