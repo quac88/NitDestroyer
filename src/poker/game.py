@@ -24,15 +24,15 @@ class Player:
         """Make a bet or raise."""
         self.stack -= amount
         self.chips_in_play += amount
-        pot.add_to_pot(amount)
+        pot.add_to_pot(amount=amount)
 
     def post_ante(self, ante: int, pot: Pot) -> None:
         """Post the ante."""
-        self.bet(ante, pot)
+        self.bet(amount=ante, pot=pot)
 
     def call(self, amount: int, pot: Pot) -> None:
         """Make a call."""
-        self.bet(amount, pot)
+        self.bet(amount=amount, pot=pot)
 
     def check(self) -> None:
         """Check."""
@@ -42,11 +42,12 @@ class Player:
         """Fold the hand."""
         self.status = False
     
-    # check if player is bust
     def is_bust(self) -> bool:
+        """Check if a player is bust."""
         return self.stack == 0
 
     def __hash__(self) -> int:
+        """Hash a player."""
         return hash(self.player_ID)
     
 class Pot:
@@ -54,12 +55,15 @@ class Pot:
         self.total: int = total
 
     def reset_pot(self) -> None:
+        """Reset the pot."""
         self.total = 0
 
     def add_to_pot(self, amount: int) -> None:
+        """Add to the pot."""
         self.total += amount
 
     def award_pot(self, winners: list[Player]):
+        """Award the pot to the winner(s)."""
         if len(winners) > 1:
             split_amount = self.total // len(winners)
             for winner in winners:
@@ -80,38 +84,42 @@ class Dealer:
         self.board: list = []  # To store the flop and turn cards
 
     def deal_hand(self, players: list[Player]) -> None:
+        """Deal the hand to the players."""
         for player in players:
             if player is not None:
                 player.hand = self.deck.deal_cards(1)
 
     def move_button(self, players: list[Player]) -> None:
+        """Move the button to the next player."""
         if players[self.button] is None:
             self.button = 0
         else:
             self.button = (self.button + 1) % len(players)
 
     def deal_flop(self) -> list:
+        """Deal the flop."""
         flop = self.deck.deal_cards(1)
         self.board.extend(flop)
         return flop
 
     def deal_turn(self) -> list:
+        """Deal the turn."""
         turn = self.deck.deal_cards(1)
         self.board.extend(turn)
         return turn
 
     def active_players_count(self, players: list[Player]):
+        """Count the number of active players."""
         return sum(1 for player in players if player.status)
 
     def determine_winner(self, players: list[Player]) -> list[Player]:
+        """Determine the winner(s)."""
         best_rank = None
         winners = []
-
         for player in players:
             if player.status is True:
                 combined_hand: list = player.hand + self.board
                 ranked_hand = HandRanker.rank_hand(combined_hand)
-
                 if best_rank is None or (ranked_hand and ranked_hand[0] < best_rank):
                     best_rank = ranked_hand[0]
                     winners = [(player, ranked_hand)]
@@ -126,26 +134,30 @@ class Table:
         self.seats: list[None] = [None] * seats
 
     def __str__(self) -> str:
+        """Representation of the table."""
         return str(object=self.seats)
 
     def seat_player(self, player, seat) -> None:
+        """Seat a player at a seat."""
         self.seats[seat] = player
 
 class PlayerAction(Enum):
+    """Enum for player actions."""
     FOLD = 1
     CHECK = 2
     CALL = 3
     RAISE = 4
 
 class Game:
-    def __init__(self, players, dealer, betting_limit, current_bet=0):
+    def __init__(self, players, dealer, betting_limit, current_bet=0) -> None:
         self.players = players
         self.dealer = dealer
         self.betting_limit = betting_limit
         self.current_bet = current_bet
         self.num_players = len(self.players)
 
-    def betting_round(self, button, start_offset, round_limit):
+    def betting_round(self, button, start_offset, round_limit) -> None:
+        """Handle the logic for a round of betting."""
         current_bet = 0
         raise_occurred = True
         last_raiser = None
@@ -170,9 +182,9 @@ class Game:
                 elif player == last_raiser:
                     continue
                 else:
-                    available_actions = [PlayerAction.FOLD, PlayerAction.CALL, PlayerAction.RAISE]
+                    available_actions: list[PlayerAction] = [PlayerAction.FOLD, PlayerAction.CALL, PlayerAction.RAISE]
 
-                action = random.choice(available_actions)
+                action: PlayerAction = random.choice(available_actions)
                 players_acted.add(player)
 
                 if action == PlayerAction.FOLD:
@@ -192,13 +204,16 @@ class Game:
             if not raise_occurred:
                 break
 
-    def preflop_betting(self, button, round_limit):
+    def preflop_betting(self, button, round_limit) -> None:
+        """Preflop betting."""
         self.betting_round(button=button, start_offset=3, round_limit=round_limit)
 
-    def flop_betting(self, button, round_limit):
+    def flop_betting(self, button, round_limit) -> None:
+        """Flop betting."""
         self.betting_round(button=button, start_offset=1, round_limit=round_limit)
 
-    def turn_betting(self, button, round_limit):
+    def turn_betting(self, button, round_limit) -> None:
+        """Turn betting."""
         self.betting_round(button=button, start_offset=1, round_limit=round_limit)
 
 
