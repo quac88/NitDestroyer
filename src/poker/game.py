@@ -41,7 +41,7 @@ class Player:
     def fold(self) -> None:
         """Fold the hand."""
         self.status = False
-    
+
     def is_bust(self) -> bool:
         """Check if a player is bust."""
         return self.stack == 0
@@ -49,7 +49,8 @@ class Player:
     def __hash__(self) -> int:
         """Hash a player."""
         return hash(self.player_ID)
-    
+
+
 class Pot:
     def __init__(self, total: int = 0) -> None:
         self.total: int = total
@@ -70,7 +71,7 @@ class Pot:
                 winner.stack += split_amount
             self.total = 0
         else:
-            winner: Player = winners[0] 
+            winner: Player = winners[0]
             winner.stack += self.total
             self.total = 0
 
@@ -79,7 +80,7 @@ class Dealer:
     def __init__(self, pot: Pot, deck: Deck, button: int = 0, current_bet: int = 0):
         self.pot: Pot = pot
         self.deck: Deck = deck
-        self.button: int = button
+        self.button: int = button  # we need to know what player the button is on
         self.current_bet: int = current_bet
         self.board: list = []  # To store the flop and turn cards
 
@@ -112,7 +113,7 @@ class Dealer:
         """Count the number of active players."""
         return sum(1 for player in players if player.status)
 
-    def determine_winner(self, players: list[Player]) -> list[Player]:
+    def determine_winner(self, players: list[Player]) -> list[Player] | None:
         """Determine the winner(s)."""
         best_rank = None
         winners = []
@@ -126,8 +127,8 @@ class Dealer:
                 elif ranked_hand and ranked_hand[0] == best_rank:
                     winners.append((player, ranked_hand))
 
-
             return [winner for winner, _ in winners]
+
 
 class Table:
     def __init__(self, seats) -> None:
@@ -141,6 +142,7 @@ class Table:
         """Seat a player at a seat."""
         self.seats[seat] = player
 
+
 class PlayerAction(Enum):
     """Enum for player actions."""
     FOLD = 1
@@ -148,9 +150,10 @@ class PlayerAction(Enum):
     CALL = 3
     RAISE = 4
 
+
 class Game:
     def __init__(self, players, dealer, betting_limit, current_bet=0) -> None:
-        self.players = players
+        self.players: list[Player] = players
         self.dealer = dealer
         self.betting_limit = betting_limit
         self.current_bet = current_bet
@@ -178,11 +181,13 @@ class Game:
                         continue
 
                 if current_bet == 0:
-                    available_actions = [PlayerAction.CHECK, PlayerAction.RAISE]
+                    available_actions = [
+                        PlayerAction.CHECK, PlayerAction.RAISE]
                 elif player == last_raiser:
                     continue
                 else:
-                    available_actions: list[PlayerAction] = [PlayerAction.FOLD, PlayerAction.CALL, PlayerAction.RAISE]
+                    available_actions: list[PlayerAction] = [
+                        PlayerAction.FOLD, PlayerAction.CALL, PlayerAction.RAISE]
 
                 action: PlayerAction = random.choice(available_actions)
                 players_acted.add(player)
@@ -206,14 +211,30 @@ class Game:
 
     def preflop_betting(self, button, round_limit) -> None:
         """Preflop betting."""
-        self.betting_round(button=button, start_offset=3, round_limit=round_limit)
+        self.betting_round(button=button, start_offset=3,
+                           round_limit=round_limit)
 
     def flop_betting(self, button, round_limit) -> None:
         """Flop betting."""
-        self.betting_round(button=button, start_offset=1, round_limit=round_limit)
+        self.betting_round(button=button, start_offset=1,
+                           round_limit=round_limit)
 
     def turn_betting(self, button, round_limit) -> None:
         """Turn betting."""
-        self.betting_round(button=button, start_offset=1, round_limit=round_limit)
+        self.betting_round(button=button, start_offset=1,
+                           round_limit=round_limit)
 
-
+    # return game state data
+    def get_game_state(self):
+        game_data = {
+            'pot': self.dealer.pot.total,
+            'current_bet': self.dealer.current_bet,
+            'board': self.dealer.board}
+        for player in self.players:
+            game_data[str(player.player_ID)] = {
+                'stack': player.stack,
+                'hand': player.hand,
+                'status': player.status,
+                'chips_in_play': player.chips_in_play
+            }
+        return game_data
