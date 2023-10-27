@@ -1,3 +1,2 @@
-numpy
-pandas
-anytree
+__future__
+qqdm
