@@ -4,8 +4,39 @@ from src.poker.cardecky import Card, Deck, Rank, Suit, HandRanker
 
 class TestCard(unittest.TestCase):
     def test_card_representation(self) -> None:
-        card = Card(Rank.ACE, Suit.SPADES)
-        self.assertEqual(repr(card), "ACES")
+        'Dictionary to map each Rank to its expected string representation'
+        rank_to_string = {
+            Rank.TWO: "2",
+            Rank.THREE: "3",
+            Rank.FOUR: "4",
+            Rank.FIVE: "5",
+            Rank.SIX: "6",
+            Rank.SEVEN: "7",
+            Rank.EIGHT: "8",
+            Rank.NINE: "9",
+            Rank.TEN: "10",
+            Rank.JACK: "J",
+            Rank.QUEEN: "Q",
+            Rank.KING: "K",
+            Rank.ACE: "A"
+        }
+        'Dictionary to map each Suit to its expected string representation'
+        suit_to_string = {
+            Suit.HEARTS: "H",
+            Suit.DIAMONDS: "D",
+            Suit.CLUBS: "C",
+            Suit.SPADES: "S"
+        }
+        
+        'Loop through each rank and suit to test the representation of each card'
+        for rank, rank_str in rank_to_string.items():
+            for suit, suit_str in suit_to_string.items():
+                # Create a Card object
+                card = Card(rank=rank, suit=suit)
+                # Construct the expected representation of the card
+                expected_repr = f"{rank_str}{suit_str}"
+                # Check if the actual representation matches the expected representation
+                self.assertEqual(repr(card), expected_repr)
 
 class TestDeck(unittest.TestCase):
     def test_initial_deck_size(self) -> None:
