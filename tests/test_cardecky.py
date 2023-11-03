@@ -108,16 +108,27 @@ class TestHandRanker(unittest.TestCase):
                 cards = [Card(rank, suit) for rank in ranks_combination]
                 self.assertTrue(HandRanker.is_flush(cards))
 
-    def test_is_three_of_a_kind_true(self):
+    def test_is_three_of_a_kind_true(self) -> None:
         # Iterate over all ranks for the three similar cards
         for rank in Rank:
             # Generate two cards of different ranks
-            other_cards = [Card(other_rank, suit) for other_rank, suit in product(Rank, Suit) if other_rank != rank][:2]
+            other_cards = [Card(rank=other_rank, suit=suit) for other_rank, suit in product(Rank, Suit) if other_rank != rank][:2]
             # Generate the three cards of the same rank
-            three_of_a_kind_cards = [Card(rank, suit) for suit in Suit][:3]
+            three_of_a_kind_cards = [Card(rank=rank, suit=suit) for suit in Suit][:3]
             # Combine and test
             cards = three_of_a_kind_cards + other_cards
             self.assertTrue(HandRanker.is_three_of_a_kind(cards))
+
+    def test_is_pair_true(self) -> None:
+        # Iterate over all ranks for the pair
+        for rank in Rank:
+            # Generate three cards of different ranks
+            other_cards = [Card(rank=other_rank, suit=suit) for other_rank, suit in product(Rank, Suit) if other_rank != rank][:3]
+            # Generate the pair of cards
+            pair_cards = [Card(rank=rank, suit=suit) for suit in Suit][:2]
+            # Combine and test
+            cards = pair_cards + other_cards
+            self.assertTrue(HandRanker.is_pair(cards=cards))
 
 
 if __name__ == '__main__':
