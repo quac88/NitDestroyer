@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import patch
+from itertools import product
 from src.poker.cardecky import Card, Deck, Rank, Suit, HandRanker
 
 class TestCard(unittest.TestCase):
@@ -95,8 +96,17 @@ class TestHandRanker(unittest.TestCase):
         self.assertTrue(HandRanker.is_straight(cards))
 
     def test_is_flush_true(self) -> None:
-        cards = [Card(Rank.TWO, Suit.CLUBS), Card(Rank.SIX, Suit.CLUBS), Card(Rank.SEVEN, Suit.CLUBS)]
-        self.assertTrue(HandRanker.is_flush(cards))
+        all_ranks: list[Rank] = [Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX, 
+                     Rank.SEVEN, Rank.EIGHT, Rank.NINE, Rank.TEN, Rank.JACK, 
+                     Rank.QUEEN, Rank.KING, Rank.ACE]
+
+        all_suits: list[Suit] = [Suit.CLUBS, Suit.DIAMONDS, Suit.HEARTS, Suit.SPADES]
+
+        # Test all possible flushes
+        for suit in all_suits:
+            for ranks_combination in product(all_ranks, repeat=5):
+                cards = [Card(rank, suit) for rank in ranks_combination]
+                self.assertTrue(HandRanker.is_flush(cards))
 
 if __name__ == '__main__':
     unittest.main()
