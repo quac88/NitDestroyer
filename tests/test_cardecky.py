@@ -108,5 +108,17 @@ class TestHandRanker(unittest.TestCase):
                 cards = [Card(rank, suit) for rank in ranks_combination]
                 self.assertTrue(HandRanker.is_flush(cards))
 
+    def test_is_three_of_a_kind_true(self):
+        # Iterate over all ranks for the three similar cards
+        for rank in Rank:
+            # Generate two cards of different ranks
+            other_cards = [Card(other_rank, suit) for other_rank, suit in product(Rank, Suit) if other_rank != rank][:2]
+            # Generate the three cards of the same rank
+            three_of_a_kind_cards = [Card(rank, suit) for suit in Suit][:3]
+            # Combine and test
+            cards = three_of_a_kind_cards + other_cards
+            self.assertTrue(HandRanker.is_three_of_a_kind(cards))
+
+
 if __name__ == '__main__':
     unittest.main()
