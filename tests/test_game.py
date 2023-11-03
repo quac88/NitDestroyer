@@ -9,6 +9,8 @@ class TestPlayer(unittest.TestCase):
         """Setup before each test"""
         self.player = Player(player_ID=0, stack=200, hand=[], status=True, chips_in_play=0)
         self.pot = Mock(Pot)
+        self.pot.total = 0  # Set the 'total' attribute on the mock
+
 
     def test_bet(self) -> None:
         """Test betting"""
@@ -61,6 +63,20 @@ class TestPlayer(unittest.TestCase):
         self.assertFalse(self.player.is_bust())
         self.player.stack = 0
         self.assertTrue(self.player.is_bust())
+
+    def test_check(self) -> None:
+        """Test checking"""
+        initial_stack = self.player.stack
+        self.player.check()
+        # Check that the player's stack remains unchanged
+        self.assertEqual(self.player.stack, initial_stack)
+        self.assertTrue(self.player.status)  # The player should still be active
+
+    def test_fold(self) -> None:
+        """Test folding"""
+        self.player.fold()
+        # Check that the player's status is set to False
+        self.assertFalse(self.player.status)
 
 class TestPot(unittest.TestCase):
     def setUp(self) -> None:
