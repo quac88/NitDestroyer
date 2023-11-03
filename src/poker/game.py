@@ -22,6 +22,10 @@ class Player:
 
     def bet(self, amount: int, pot: Pot) -> None:
         """Make a bet or raise."""
+        if amount < 0:
+            raise ValueError("Bet amount cannot be negative")
+        if amount > self.stack:
+            raise ValueError("Bet amount cannot be larger than the player's stack")
         self.stack -= amount
         self.chips_in_play += amount
         pot.add_to_pot(amount=amount)
@@ -141,6 +145,8 @@ class Table:
 
     def seat_player(self, player, seat) -> None:
         """Seat a player at a seat."""
+        if seat < 0 or seat >= len(self.seats) or not isinstance(seat, int):
+            raise IndexError("Invalid seat index")
         self.seats[seat] = player
 
 class PlayerAction(Enum):
