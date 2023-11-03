@@ -22,6 +22,40 @@ class TestPlayer(unittest.TestCase):
         self.assertTrue(self.player.can_bet(amount=50))
         self.assertFalse(self.player.can_bet(amount=1500))
 
+    def test_bet_large(self) -> None:
+        """Test attempting to post an ante larger than the stack"""
+        with self.assertRaises(ValueError, msg="Should raise error for ante larger than stack"):
+            self.player.post_ante(ante=201, pot=self.pot)
+
+    def test_bet_negative(self) -> None:
+        """Test attempting to post a negative ante"""
+        with self.assertRaises(ValueError, msg="Should raise error for negative ante"):
+            self.player.post_ante(ante=-1, pot=self.pot)
+
+    def test_bet_zero(self) -> None:
+        """Test posting an ante of zero"""
+        self.player.post_ante(ante=0, pot=self.pot)
+        self.assertEqual(self.player.stack, 200)
+        self.assertEqual(self.player.chips_in_play, 0)
+        self.pot.add_to_pot.assert_called_once_with(amount=0)
+
+    
+    def test_post_ante(self) -> None:
+        """Test posting a valid ante"""
+        self.player.post_ante(ante=1, pot=self.pot)
+        self.assertEqual(self.player.stack, 199)
+        self.assertEqual(self.player.chips_in_play, 1)
+        self.pot.add_to_pot.assert_called_once_with(amount=1)
+
+    def test_call(self) -> None:
+        """Test making a call"""
+        call_amount = 50
+        self.player.call(amount=call_amount, pot=self.pot)
+        # Check that the player's stack has decreased and chips in play increased
+        self.assertEqual(self.player.stack, 200 - call_amount)
+        self.assertEqual(self.player.chips_in_play, call_amount)
+        self.assertEqual(self.pot.total, call_amount)
+
     def test_is_bust(self) -> None:
         """Test if a player is bust"""
         self.assertFalse(self.player.is_bust())
@@ -52,12 +86,46 @@ class TestDealer(unittest.TestCase):
         self.dealer = Dealer(pot=self.pot, deck=self.deck)
 
     def test_deal_hand(self) -> None:
+        """Test dealing hands to players"""
         player0 = Mock(Player)
         player1 = Mock(Player)
-        self.deck.deal_cards.return_value = ['CardA']
+        # Mock the return value of deal_cards to simulate dealing different cards to different players
+        self.deck.deal_cards.side_effect = [['CardA'], ['CardB']]
+        # Call the method to deal hands
         self.dealer.deal_hand(players=[player0, player1])
-        player0.hand = ['CardA']
-        player1.hand = ['CardA']
+        # Assert that each player's hand is set correctly with different cards
+        self.assertEqual(player0.hand, ['CardA'])
+        self.assertEqual(player1.hand, ['CardB'])
+
+    def test_move_button(self) -> None:
+        """Test moving the button to the next player"""
+        # Mock the players
+        player0 = Mock(Player)
+        player1 = Mock(Player)
+        player2 = Mock(Player)
+        players: list[Mock] = [player0, player1, player2]
+        # Initial button position
+        self.assertEqual(self.dealer.button, 0)
+        # Move button once
+        self.dealer.move_button(players=players)
+        self.assertEqual(self.dealer.button, 1)
+        # Move button again
+        self.dealer.move_button(players=players)
+        self.assertEqual(self.dealer.button, 2)
+        # Move button again, should wrap around to first player
+        self.dealer.move_button(players=players)
+        self.assertEqual(self.dealer.button, 0)
+
+    def test_move_button_with_none_player(self) -> None:
+        """Test moving the button with a None player"""
+        # Mock the players
+        player0 = Mock(Player)
+        players = [player0, None, None]
+        # Initial button position
+        self.assertEqual(self.dealer.button, 0)
+        # Move button, should wrap around to first player since other players are None
+        self.dealer.move_button(players)
+        self.assertEqual(self.dealer.button, 0)
 
 class TestTable(unittest.TestCase):
     def setUp(self) -> None:
@@ -67,7 +135,23 @@ class TestTable(unittest.TestCase):
         player = Mock(Player)
         self.table.seat_player(player=player, seat=2)
         self.assertEqual(self.table.seats[2], player)
-
+    
+    def test_seat_player_invalid_seat(self) -> None:
+        """Test attempting to seat a player at an invalid seat"""
+        player = Mock(Player)
+        
+        # Test negative seat index
+        with self.assertRaises(IndexError, msg="Should raise error for negative seat index"):
+            self.table.seat_player(player=player, seat=-1)
+        
+        # Test seat index larger than available seats
+        with self.assertRaises(IndexError, msg="Should raise error for seat index larger than available seats"):
+            self.table.seat_player(player=player, seat=6)
+        
+        # Test floating-point seat index
+        with self.assertRaises(IndexError, msg="Should raise error for floating-point seat index"):
+            self.table.seat_player(player=player, seat=2.5)
+            
 class TestGame(unittest.TestCase):
     def setUp(self) -> None:
         """Setup before each test"""
@@ -82,7 +166,7 @@ class TestGame(unittest.TestCase):
     def test_preflop_betting(self, mock_random_choice) -> None:
         """Test preflop betting"""
         mock_random_choice.side_effect = [PlayerAction.CHECK, PlayerAction.CHECK]
-        self.game.preflop_betting(button=0, round_limit=10)
+        self.game.preflop_betting(button=0, round_limit=2)
 
         for player in self.players:
             self.assertEqual(player.chips_in_play, 0)
