@@ -32,7 +32,7 @@ class Card:
 
     def __repr__(self) -> str:
         """Representation of a card."""
-        return f"{self.rank.name}{self.suit.value}"
+        return f"{self.rank.value}{self.suit.value}"
 class Deck:
     def __init__(self) -> None:
         self.deck = [Card(rank, suit) for rank in Rank for suit in Suit]
@@ -83,11 +83,17 @@ class HandRanker:
         return card.rank.value
     
     @staticmethod
-    def is_straight(cards: List[Card]) -> bool:
+    def is_straight(cards: List['Card']) -> bool:
         """Return True if the cards are a straight, False otherwise."""
         ranks = [card.rank.value for card in cards]
         sorted_ranks = sorted(ranks)
-        return sorted_ranks[-1] - sorted_ranks[0] == len(cards) - 1
+        # Check for regular straight
+        if sorted_ranks[-1] - sorted_ranks[0] == len(cards) - 1 and len(set(ranks)) == len(cards):
+            return True
+        # Check for A2345 straight (the wheel)
+        if set(sorted_ranks) == {14, 2, 3, 4, 5}:
+            return True
+        return False
 
     @staticmethod
     def is_flush(cards) -> bool:
