@@ -129,8 +129,5 @@ class TestHandRanker(unittest.TestCase):
             cards: list[Card] = pair_cards + other_cards
             self.assertTrue(HandRanker.is_pair(cards=cards))
 
-    
-
-
 if __name__ == '__main__':
     unittest.main()
