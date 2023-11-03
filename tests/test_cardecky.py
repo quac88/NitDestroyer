@@ -15,10 +15,10 @@ class TestCard(unittest.TestCase):
             Rank.EIGHT: "8",
             Rank.NINE: "9",
             Rank.TEN: "10",
-            Rank.JACK: "J",
-            Rank.QUEEN: "Q",
-            Rank.KING: "K",
-            Rank.ACE: "A"
+            Rank.JACK: "11",
+            Rank.QUEEN: "12",
+            Rank.KING: "13",
+            Rank.ACE: "14"
         }
         'Dictionary to map each Suit to its expected string representation'
         suit_to_string = {
@@ -38,39 +38,63 @@ class TestCard(unittest.TestCase):
                 # Check if the actual representation matches the expected representation
                 self.assertEqual(repr(card), expected_repr)
 
+"""Test the Deck class."""
 class TestDeck(unittest.TestCase):
+    """Test the initial size of the deck."""
     def test_initial_deck_size(self) -> None:
         deck = Deck()
         self.assertEqual(deck.cardsLeft(), 52)
 
+    """Test the size of the deck after shuffling."""
     def test_shuffle_resets_cards_used(self) -> None:
         deck = Deck()
         deck.cards_used = 5
         deck.shuffle()
         self.assertEqual(deck.cardsLeft(), 52)
 
-    def test_deal_card(self):
+    """Test the size of the deck after dealing a card."""
+    def test_deal_card(self) -> None:
         deck = Deck()
-        card = deck.deal_card()
+        card: Card = deck.deal_card()
         self.assertIsInstance(card, Card)
         self.assertEqual(deck.cardsLeft(), 51)
 
-    def test_deal_card_empty_deck(self):
+    """Test that None is returned after all the cards have been dealt."""
+    def test_deal_card_empty_deck(self) -> None:
         deck = Deck()
         deck.cards_used = 52
         card = deck.deal_card()
         self.assertIsNone(card)
 
+"""Test the HandRanker class."""
 class TestHandRanker(unittest.TestCase):
-    def test_rank_value(self):
-        card = Card(Rank.FOUR, Suit.CLUBS)
-        self.assertEqual(HandRanker.rank_value(card), 4)
+    """Test the rank_value method."""
+    def test_rank_value_for_all_cards(self) -> None:
+        # Iterate through all ranks in the Rank enum
+        for rank in Rank:
+            # For each rank, create a card with a fixed suit (e.g., CLUBS)
+            card = Card(rank=rank, suit=Suit.CLUBS)
+            # Call the rank_value method and check if it returns the correct value
+            self.assertEqual(HandRanker.rank_value(card), rank.value,
+                             f"Failed for card: {repr(card)}")
 
-    def test_is_straight_true(self):
-        cards = [Card(Rank.FIVE, Suit.CLUBS), Card(Rank.SIX, Suit.DIAMONDS), Card(Rank.SEVEN, Suit.HEARTS)]
+    def test_is_straight_true(self) -> None:
+        all_ranks: list[Rank] = [Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX, 
+                     Rank.SEVEN, Rank.EIGHT, Rank.NINE, Rank.TEN, Rank.JACK, 
+                     Rank.QUEEN, Rank.KING, Rank.ACE]
+
+        # Test all consecutive 5-card straights
+        for i in range(len(all_ranks) - 4):
+            cards: list[Card] = [Card(rank=all_ranks[j], suit=Suit.CLUBS) for j in range(i, i + 5)]
+            self.assertTrue(HandRanker.is_straight(cards))
+
+        # Test A2345 straight
+        cards = [Card(rank=Rank.ACE, suit=Suit.CLUBS), Card(rank=Rank.TWO, suit=Suit.DIAMONDS), 
+                 Card(rank=Rank.THREE, suit=Suit.HEARTS), Card(rank=Rank.FOUR, suit=Suit.SPADES), 
+                 Card(rank=Rank.FIVE, suit=Suit.CLUBS)]
         self.assertTrue(HandRanker.is_straight(cards))
 
-    def test_is_flush_true(self):
+    def test_is_flush_true(self) -> None:
         cards = [Card(Rank.TWO, Suit.CLUBS), Card(Rank.SIX, Suit.CLUBS), Card(Rank.SEVEN, Suit.CLUBS)]
         self.assertTrue(HandRanker.is_flush(cards))
 
