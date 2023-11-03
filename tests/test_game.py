@@ -52,6 +52,10 @@ class TestPlayer(unittest.TestCase):
     def test_call(self) -> None:
         """Test making a call"""
         call_amount = 50
+        # Mock the 'add_to_pot' method
+        def add_to_pot(amount) -> None:
+            self.pot.total += amount
+        self.pot.add_to_pot = add_to_pot
         self.player.call(amount=call_amount, pot=self.pot)
         # Check that the player's stack has decreased and chips in play increased
         self.assertEqual(self.player.stack, 200 - call_amount)
@@ -77,6 +81,23 @@ class TestPlayer(unittest.TestCase):
         self.player.fold()
         # Check that the player's status is set to False
         self.assertFalse(self.player.status)
+
+    def test_player_hash(self) -> None:
+        """Test that the hash of a player is consistent with its player_ID."""
+        # Create some players with different player_IDs
+        player0 = Player(player_ID=0, stack=200, hand=[], status=True, chips_in_play=0)
+        player1 = Player(player_ID=1, stack=200, hand=[], status=True, chips_in_play=0)
+        player2 = Player(player_ID=2, stack=200, hand=[], status=True, chips_in_play=0)
+
+        # Check that the hash of a player is the hash of its player_ID
+        self.assertEqual(hash(player0), hash(player0.player_ID))
+        self.assertEqual(hash(player1), hash(player1.player_ID))
+        self.assertEqual(hash(player2), hash(player2.player_ID))
+
+        # Check that players with different IDs have different hashes
+        self.assertNotEqual(hash(player0), hash(player1))
+        self.assertNotEqual(hash(player0), hash(player2))
+        self.assertNotEqual(hash(player1), hash(player2))
 
 class TestPot(unittest.TestCase):
     def setUp(self) -> None:
