@@ -197,7 +197,7 @@ class TestGame(unittest.TestCase):
             Player(player_ID=1, stack=200, hand=[], status=True, chips_in_play=0)
         ]
         self.dealer = Dealer(pot=Pot(), deck=Deck())
-        self.game = Game(players=self.players, dealer=self.dealer, betting_limit=10)
+        self.game = Game(players=self.players, dealer=self.dealer, betting_limit=2)
 
     @patch("random.choice")
     def test_preflop_betting(self, mock_random_choice) -> None:
@@ -222,7 +222,7 @@ class TestGame(unittest.TestCase):
     def test_turn_betting(self, mock_random_choice) -> None:
         """Test turn betting"""
         mock_random_choice.side_effect = [PlayerAction.CALL, PlayerAction.RAISE, PlayerAction.FOLD]
-        self.game.turn_betting(button=0, round_limit=10)
+        self.game.turn_betting(button=0, round_limit=4)
 
         self.assertEqual(self.dealer.pot.total, 20)
         self.assertEqual(self.players[0].chips_in_play, 10)
