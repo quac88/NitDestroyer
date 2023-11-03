@@ -91,10 +91,12 @@ class Dealer:
 
     def move_button(self, players: list[Player]) -> None:
         """Move the button to the next player."""
-        if players[self.button] is None:
-            self.button = 0
-        else:
-            self.button = (self.button + 1) % len(players)
+        num_players: int = len(players)
+        next_button: int = (self.button + 1) % num_players
+        # Keep moving the button until a non-None player is found
+        while players[next_button] is None:
+            next_button = (next_button + 1) % num_players
+        self.button = next_button
 
     def deal_flop(self) -> list:
         """Deal the flop."""
