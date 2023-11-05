@@ -1,4 +1,14 @@
 env3.9
+DS_STORE
 __pychache__
 node_modules
 .vscode
+tests/__init__.py
+src/poker/trees.dat
+src/poker/__pycache__/__init__.cpython-39.pyc
+src/poker/__pycache__/cardecky.cpython-39.pyc
+src/poker/__pycache__/data_logger.cpython-39.pyc
+src/poker/__pycache__/game.cpython-39.pyc
+tests/__pycache__/__init__.cpython-39.pyc
+tests/__pycache__/test_cardecky.cpython-39.pyc
+tests/__pycache__/test_game.cpython-39.pyc
