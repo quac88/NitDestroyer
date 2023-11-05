@@ -9,7 +9,7 @@ PRE_FLOP_LIMIT = 2
 FLOP_LIMIT = 4
 TURN_LIMIT = 4
 START_STACK = 200
-NUM_ROUNDS: int = 1
+NUM_ROUNDS: int = 2
 
 def play_round(players, dealer, pot, game, button) -> None:
     # reset each player's hand and status
@@ -24,44 +24,91 @@ def play_round(players, dealer, pot, game, button) -> None:
     # post the antes
     for player in players:
         player.post_ante(ante=ANTE, pot=pot)
+    print(f"Players posted antes")
     print(f"Pot: {pot.total}")
 
     # Deal the hands to players
     dealer.deal_hand(players=players)
+    print(f"Hands dealt")
+    # print the players' hands
+    for player in players:
+        print(f"Player {player.player_ID} hand: {player.hand}")
 
     # Betting for pre-flop
+    print(f"Pre-flop betting")
     game.preflop_betting(button=button, round_limit=PRE_FLOP_LIMIT)
-    print(f"Pot: {pot.total}")
+    print(f"End of pre-flop betting. Pot: {pot.total}")
 
     # If there is only one player left, award the pot and move on to the next round
     if dealer.active_players_count(players=players) <= 1:
         winners = [player for player in players if player.status]
         pot.award_pot(winners)
+        # print the winner and their stack
+        for winner in winners:
+            print(f"Player {winner.player_ID} won {pot.total} chips")
+            print(f"Player {winner.player_ID} stack: {winner.stack}")
+        # print the losers stack
+        for player in players:
+            if player not in winners:
+                print(f"Player {player.player_ID} stack: {player.stack}")
         pot.reset_pot()
         return
 
     # Deal the flop and begin betting round for the flop
     flop = dealer.deal_flop()
+    print(f"Flop: {flop}")
+    print(f"Flop betting")
     game.flop_betting(button=button, round_limit=FLOP_LIMIT)
+    print(f"End of flop betting. Pot: {pot.total}")
 
     # If there is only one player left, award the pot and move on to the next round
     if dealer.active_players_count(players=players) <= 1:
         winners = [player for player in players if player.status]
         pot.award_pot(winners)
+        # print the winner and their stack
+        for winner in winners:
+            print(f"Player {winner.player_ID} won {pot.total} chips")
+            print(f"Player {winner.player_ID} stack: {winner.stack}")
+        # print the losers stack
+        for player in players:
+            if player not in winners:
+                print(f"Player {player.player_ID} stack: {player.stack}")
         pot.reset_pot()
         return
 
     # Deal the turn and begin betting round for the turn
     turn = dealer.deal_turn()
+    print(f"Turn: {turn}")
+    print(f"Turn betting")
     game.turn_betting(button=button, round_limit=TURN_LIMIT)
+    print(f"End of turn betting. Pot: {pot.total}")
     if dealer.active_players_count(players=players) <= 1:
+        winners = [player for player in players if player.status]
+        # print how much the winner won
+        for winner in winners:
+            print(f"Player {winner.player_ID} won {pot.total} chips")
         pot.award_pot([player for player in players if player.status])
+        # print the winner and their stack
+        for winner in winners:
+            print(f"Player {winner.player_ID} stack: {winner.stack}")
+        # print the losers stack
+        for player in players:
+            if player not in winners:
+                print(f"Player {player.player_ID} stack: {player.stack}")
         pot.reset_pot()
     # if there is more than one player left, determine the winner
     else:
         winners = dealer.determine_winner(players=players)
         if winners:
             pot.award_pot(winners)
+            # print the winner and their stack
+            for winner in winners:
+                print(f"Player {winner.player_ID} won {pot.total} chips")
+                print(f"Player {winner.player_ID} stack: {winner.stack}")
+            # print the losers stack
+            for player in players:
+                if player not in winners:
+                    print(f"Player {player.player_ID} stack: {player.stack}")
         pot.reset_pot()
 
 def main() -> None:
