@@ -42,10 +42,11 @@ def play_round(players, dealer, pot, game, button) -> None:
     # If there is only one player left, award the pot and move on to the next round
     if dealer.active_players_count(players=players) <= 1:
         winners = [player for player in players if player.status]
+        for winner in winners:
+            print(f"Player {winner.player_ID} won {pot.total} chips")
         pot.award_pot(winners)
         # print the winner and their stack
         for winner in winners:
-            print(f"Player {winner.player_ID} won {pot.total} chips")
             print(f"Player {winner.player_ID} stack: {winner.stack}")
         # print the losers stack
         for player in players:
@@ -64,10 +65,11 @@ def play_round(players, dealer, pot, game, button) -> None:
     # If there is only one player left, award the pot and move on to the next round
     if dealer.active_players_count(players=players) <= 1:
         winners = [player for player in players if player.status]
+        for winner in winners:
+            print(f"Player {winner.player_ID} won {pot.total} chips")
         pot.award_pot(winners)
         # print the winner and their stack
         for winner in winners:
-            print(f"Player {winner.player_ID} won {pot.total} chips")
             print(f"Player {winner.player_ID} stack: {winner.stack}")
         # print the losers stack
         for player in players:
@@ -100,10 +102,11 @@ def play_round(players, dealer, pot, game, button) -> None:
     else:
         winners = dealer.determine_winner(players=players)
         if winners:
+            for winner in winners:
+                print(f"Player {winner.player_ID} won {pot.total} chips")
             pot.award_pot(winners)
             # print the winner and their stack
             for winner in winners:
-                print(f"Player {winner.player_ID} won {pot.total} chips")
                 print(f"Player {winner.player_ID} stack: {winner.stack}")
             # print the losers stack
             for player in players:
