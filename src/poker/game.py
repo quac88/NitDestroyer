@@ -186,7 +186,7 @@ class Game:
                         continue
 
                 if current_bet == 0:
-                    available_actions = [PlayerAction.CHECK, PlayerAction.RAISE]
+                    available_actions = [PlayerAction.CHECK, PlayerAction.RAISE] 
                 elif player == last_raiser:
                     continue
                 else:
@@ -197,13 +197,19 @@ class Game:
 
                 if action == PlayerAction.FOLD:
                     player.fold()
+                    print(f"Player {player} folded")
                 elif action == PlayerAction.CHECK:
                     player.check()
+                    print(f"Player {player} checked")
                 elif action == PlayerAction.CALL:
                     player.call(amount=current_bet, pot=self.dealer.pot)
+                    print(f"Player {player} called {current_bet}")
+                    print(f"Pot: {self.dealer.pot.total}")
                 elif action == PlayerAction.RAISE:
                     raise_amount = current_bet + round_limit
                     player.bet(amount=raise_amount, pot=self.dealer.pot)
+                    print(f"Player {player} raised to {raise_amount}")
+                    print(f"Pot: {self.dealer.pot.total}")
                     current_bet = raise_amount
                     self.dealer.current_bet = raise_amount
                     raise_occurred = True
