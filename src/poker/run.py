@@ -1,7 +1,5 @@
 from qqdm import qqdm
 import time
-from multiprocessing import Pool
-import timeit
 from cardecky import Deck
 from game import Pot, Dealer, Player, Table, Game
 
@@ -10,8 +8,8 @@ ANTE = 1
 PRE_FLOP_LIMIT = 2
 FLOP_LIMIT = 4
 TURN_LIMIT = 4
-
 START_STACK = 200
+NUM_ROUNDS: int = 1
 
 def play_round(players, dealer, pot, game, button) -> None:
     # reset each player's hand and status
@@ -26,6 +24,7 @@ def play_round(players, dealer, pot, game, button) -> None:
     # post the antes
     for player in players:
         player.post_ante(ante=ANTE, pot=pot)
+    print(f"Pot: {pot.total}")
 
     # Deal the hands to players
     dealer.deal_hand(players=players)
@@ -64,13 +63,6 @@ def play_round(players, dealer, pot, game, button) -> None:
             pot.award_pot(winners)
         pot.reset_pot()
 
-# Passing a tuple to the wrapper function allows us to use the imap_unordered function from the multiprocessing module
-def play_round_wrapper(args) -> None:
-    players, dealer, pot, game, button, round_number = args
-    play_round(players=players, dealer=dealer, pot=pot, game=game, button=button)
-    button = (button + 1) % len(players)  # Move the button
-
-NUM_ROUNDS: int = 1_000_000
 def main() -> None:
     ##### Initial setup #####
     deck = Deck()
@@ -86,17 +78,17 @@ def main() -> None:
     button = dealer.button
     game = Game(players=players, dealer=dealer, betting_limit=PRE_FLOP_LIMIT)
     #####  End initial setup #####
-
+    
     # Create a list of arguments to pass to the play_round function
     args: list[tuple[list[Player], Dealer, Pot, Game, int, int]] = [(players, dealer, pot, game, button, i + 1) for i in range(NUM_ROUNDS)]
     
-    # Create a pool of processes
-    with Pool(processes=20) as pool:  # Adjust the number of processes as needed for the CPU
-        # Use qqdm to track progress and dispalay a very pretty progress bar
-        for _ in qqdm(pool.imap_unordered(func=play_round_wrapper, iterable=args), total=NUM_ROUNDS, desc="Rounds"):
-            pass  # qqdm will handle the progress automatically
+    # Use qqdm to track progress and display a very pretty progress bar
+    for arg in qqdm(args, total=NUM_ROUNDS, desc="Rounds"):
+        play_round(*arg)
     
 if __name__ == "__main__":
     # check the time it takes to run
-    execution_time: float = timeit.timeit(stmt=main, number=1)
+    start_time = time.time()
+    main()
+    execution_time = time.time() - start_time
     print(f"Execution time for {NUM_ROUNDS} rounds: {execution_time:.9f} seconds")
