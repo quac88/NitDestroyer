@@ -1,6 +1,6 @@
 from __future__ import annotations
 import random
-from src.poker.cardecky import Deck, HandRanker
+from cardecky import Deck, HandRanker
 from enum import Enum
 
 
