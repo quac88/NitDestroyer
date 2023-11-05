@@ -1,4 +1,4 @@
-from qqdm import qqdm
+from tqdm import tqdm
 import time
 from cardecky import Deck
 from game import Pot, Dealer, Player, Table, Game
@@ -82,8 +82,8 @@ def main() -> None:
     # Create a list of arguments to pass to the play_round function
     args: list[tuple[list[Player], Dealer, Pot, Game, int, int]] = [(players, dealer, pot, game, button, i + 1) for i in range(NUM_ROUNDS)]
     
-    # Use qqdm to track progress and display a very pretty progress bar
-    for arg in qqdm(args, total=NUM_ROUNDS, desc="Rounds"):
+    # Use tqdm to track progress and display a progress bar  # Change here
+    for arg in tqdm(args, total=NUM_ROUNDS, desc="Rounds"):
         play_round(*arg)
     
 if __name__ == "__main__":
