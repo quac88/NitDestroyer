@@ -1,6 +1,9 @@
 import unittest
 from unittest.mock import Mock, patch
 import random
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src', 'poker')))
 from src.poker.cardecky import Deck, HandRanker, Rank, Suit
 from src.poker.game import Player, Pot, Dealer, Table, PlayerAction, Game
 
