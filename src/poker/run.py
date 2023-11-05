@@ -31,6 +31,7 @@ def play_round(players, dealer, pot, game, button) -> None:
 
     # Betting for pre-flop
     game.preflop_betting(button=button, round_limit=PRE_FLOP_LIMIT)
+    print(f"Pot: {pot.total}")
 
     # If there is only one player left, award the pot and move on to the next round
     if dealer.active_players_count(players=players) <= 1:
@@ -80,8 +81,8 @@ def main() -> None:
     #####  End initial setup #####
     
     # Create a list of arguments to pass to the play_round function
-    args: list[tuple[list[Player], Dealer, Pot, Game, int, int]] = [(players, dealer, pot, game, button, i + 1) for i in range(NUM_ROUNDS)]
-    
+    args: list[tuple[list[Player], Dealer, Pot, Game, int]] = [(players, dealer, pot, game, button) for i in range(NUM_ROUNDS)]
+        
     # Use tqdm to track progress and display a progress bar  # Change here
     for arg in tqdm(args, total=NUM_ROUNDS, desc="Rounds"):
         play_round(*arg)
