@@ -1,7 +1,10 @@
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src', 'poker')))
 import unittest
 from unittest.mock import patch
 from itertools import product
-from src.poker.cardecky import Card, Deck, Rank, Suit, HandRanker
+from cardecky import Card, Deck, Rank, Suit, HandRanker
 
 class TestCard(unittest.TestCase):
     def test_card_representation(self) -> None:
@@ -28,7 +31,7 @@ class TestCard(unittest.TestCase):
             Suit.CLUBS: "C",
             Suit.SPADES: "S"
         }
-        
+
         'Loop through each rank and suit to test the representation of each card'
         for rank, rank_str in rank_to_string.items():
             for suit, suit_str in suit_to_string.items():
@@ -80,8 +83,8 @@ class TestHandRanker(unittest.TestCase):
                              f"Failed for card: {repr(card)}")
 
     def test_is_straight_true(self) -> None:
-        all_ranks: list[Rank] = [Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX, 
-                     Rank.SEVEN, Rank.EIGHT, Rank.NINE, Rank.TEN, Rank.JACK, 
+        all_ranks: list[Rank] = [Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX,
+                     Rank.SEVEN, Rank.EIGHT, Rank.NINE, Rank.TEN, Rank.JACK,
                      Rank.QUEEN, Rank.KING, Rank.ACE]
 
         # Test all consecutive 5-card straights
@@ -90,14 +93,14 @@ class TestHandRanker(unittest.TestCase):
             self.assertTrue(HandRanker.is_straight(cards))
 
         # Test A2345 straight
-        cards = [Card(rank=Rank.ACE, suit=Suit.CLUBS), Card(rank=Rank.TWO, suit=Suit.DIAMONDS), 
-                 Card(rank=Rank.THREE, suit=Suit.HEARTS), Card(rank=Rank.FOUR, suit=Suit.SPADES), 
+        cards = [Card(rank=Rank.ACE, suit=Suit.CLUBS), Card(rank=Rank.TWO, suit=Suit.DIAMONDS),
+                 Card(rank=Rank.THREE, suit=Suit.HEARTS), Card(rank=Rank.FOUR, suit=Suit.SPADES),
                  Card(rank=Rank.FIVE, suit=Suit.CLUBS)]
         self.assertTrue(HandRanker.is_straight(cards))
 
     def test_is_flush_true(self) -> None:
-        all_ranks: list[Rank] = [Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX, 
-                     Rank.SEVEN, Rank.EIGHT, Rank.NINE, Rank.TEN, Rank.JACK, 
+        all_ranks: list[Rank] = [Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX,
+                     Rank.SEVEN, Rank.EIGHT, Rank.NINE, Rank.TEN, Rank.JACK,
                      Rank.QUEEN, Rank.KING, Rank.ACE]
 
         all_suits: list[Suit] = [Suit.CLUBS, Suit.DIAMONDS, Suit.HEARTS, Suit.SPADES]
