@@ -1,11 +1,10 @@
 import unittest
 from unittest.mock import Mock, patch
-import random
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src', 'poker')))
-from src.poker.cardecky import Deck, HandRanker, Rank, Suit
-from src.poker.game import Player, Pot, Dealer, Table, PlayerAction, Game
+from cardecky import Deck, HandRanker, Rank, Suit
+from game import Player, Pot, Dealer, Table, PlayerAction, Game
 
 class TestPlayer(unittest.TestCase):
     def setUp(self) -> None:
@@ -44,7 +43,7 @@ class TestPlayer(unittest.TestCase):
         self.assertEqual(self.player.chips_in_play, 0)
         self.pot.add_to_pot.assert_called_once_with(amount=0)
 
-    
+
     def test_post_ante(self) -> None:
         """Test posting a valid ante"""
         self.player.post_ante(ante=1, pot=self.pot)
@@ -175,19 +174,19 @@ class TestTable(unittest.TestCase):
         player = Mock(Player)
         self.table.seat_player(player=player, seat=2)
         self.assertEqual(self.table.seats[2], player)
-    
+
     def test_seat_player_invalid_seat(self) -> None:
         """Test attempting to seat a player at an invalid seat"""
         player = Mock(Player)
-        
+
         # Test negative seat index
         with self.assertRaises(IndexError, msg="Should raise error for negative seat index"):
             self.table.seat_player(player=player, seat=-1)
-        
+
         # Test seat index larger than available seats
         with self.assertRaises(IndexError, msg="Should raise error for seat index larger than available seats"):
             self.table.seat_player(player=player, seat=6)
-        
+
         # Test floating-point seat index
         with self.assertRaises(IndexError, msg="Should raise error for floating-point seat index"):
             self.table.seat_player(player=player, seat=2.5)
