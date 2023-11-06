@@ -5,9 +5,11 @@ Austin community college computer science club group machine learning project fo
 Welcome to the ACC CS poker ML group projects. Do get started, please read [contributing.md](docs/contributing.md)
 
 # Goals
-The goal of NitDestroyer is to find a Nash Equilibrium for poker. We will begin with Rhode Island Hold'em (RIH), and gradually move up to Limit Texas Hold'em (LTH) and No Limit Texas Hold'em (NLTH). We are specifically targeting cash game play, but will also be looking at tournament play.
+The goal of NitDestroyer is to find a Nash Equilibrium for poker. We will begin with Kuhn Poker and gradually move up to Rhode Island Hold'em (RIH), Limit Texas Hold'em (LTH), and No Limit Texas Hold'em (NLTH). We are specifically targeting cash game play, but will also be looking at tournament play.
 
 # Rescources and References
+[Kuhn Poker Rules](https://en.wikipedia.org/wiki/Kuhn_poker)
+![Khun Poker Tree](images/kuhn_game_tree.svg)
 [Rhode Island Hold'em Rules](https://www.cs.cmu.edu/~gilpin/gsi.html)
 [Limit Texas Hold'em Rules](https://www.pokerlistings.com/limit-texas-holdem)
 [No Limit Texas Hold'em Rules](https://www.thepokerbank.com/articles/basics/rules/)
@@ -23,8 +25,12 @@ The goal of NitDestroyer is to find a Nash Equilibrium for poker. We will begin 
 - [x] Create version control
 - [x] Create [contributing.md](docs/contributing.md) rules and PR template
 - [x] Choose a playing card emulator
-- [ ] Build a poker module from scratch (player class, game class, etc.)
-- [ ] Create a poker emulator from scratch
+- [x] Build a poker module from scratch (player class, game class, etc.)
+- [x] Create a poker emulator from scratch
+- [x] Write unit tests
+- [x] Build a data logger
+- [ ] Build Kuhn Poker
+- [ ] Solve Kuhn Poker
 - [ ] Brainstorm data collection and storage
 - [ ] Create randomized player agents
 - [ ] Begin ML training on randomized player agents (ultra simple algorithm)
