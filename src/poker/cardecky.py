@@ -2,6 +2,7 @@ import random
 from enum import Enum
 from typing import List
 
+
 class Rank(Enum):
     """Rank of a card."""
     TWO = 2
@@ -18,6 +19,7 @@ class Rank(Enum):
     KING = 13
     ACE = 14
 
+
 class Suit(Enum):
     """Suit of a card."""
     CLUBS = 'C'
@@ -25,14 +27,23 @@ class Suit(Enum):
     HEARTS = 'H'
     SPADES = 'S'
 
+
 class Card:
+    suit_index = {'C': 1, 'D': 2, 'H': 3, 'S': 4}
+
     def __init__(self, rank: Rank, suit: Suit) -> None:
         self.rank: Rank = rank
         self.suit: Suit = suit
 
-    def __repr__(self) -> str:
-        """Representation of a card."""
+    def __str__(self) -> str:
+        """str of a card."""
         return f"{self.rank.name}{self.suit.value}"
+
+    def __repr__(self) -> int:
+        """repr of a card but with a value of 0-51 for use in sorting."""
+        return (self.rank.value - 2) * self.suit_index[self.suit.value]
+
+
 class Deck:
     def __init__(self) -> None:
         self.deck = [Card(rank, suit) for rank in Rank for suit in Suit]
@@ -76,12 +87,17 @@ class Deck:
             tmp_deck += str(c) + " "
         return tmp_deck
 
+    def __repr__(self) -> list:
+        """Representation of the deck."""
+        return self.deck
+
+
 class HandRanker:
     @staticmethod
     def rank_value(card):
         """Return the value of a card."""
         return card.rank.value
-    
+
     @staticmethod
     def is_straight(cards: List[Card]) -> bool:
         """Return True if the cards are a straight, False otherwise."""
@@ -104,31 +120,36 @@ class HandRanker:
     def rank_hand(cards):
         """Return the rank of the hand."""
         counts = HandRanker.rank_counts(cards)
-        
+
         # Straight Flush
         if HandRanker.is_straight(cards) and HandRanker.is_flush(cards):
             return (1, max(cards, key=HandRanker.rank_value).rank)
-        
+
         # Three of a kind
-        three_card = next((card for card, count in counts.items() if count == 3), None)
+        three_card = next(
+            (card for card, count in counts.items() if count == 3), None)
         if three_card:
             return (2, three_card)
-        
+
         # Straight
         if HandRanker.is_straight(cards):
             return (3, max(cards, key=HandRanker.rank_value).rank)
-        
+
         # Flush
         if HandRanker.is_flush(cards):
-            sorted_flush_cards = tuple(sorted(cards, key=HandRanker.rank_value, reverse=True))
+            sorted_flush_cards = tuple(
+                sorted(cards, key=HandRanker.rank_value, reverse=True))
             return (4, *sorted_flush_cards)
-        
+
         # Pair
-        pair_card = next((card for card, count in counts.items() if count == 2), None)
+        pair_card = next(
+            (card for card, count in counts.items() if count == 2), None)
         if pair_card:
-            non_pair_cards = sorted([card for card in cards if card.rank != pair_card], key=HandRanker.rank_value, reverse=True)
+            non_pair_cards = sorted(
+                [card for card in cards if card.rank != pair_card], key=HandRanker.rank_value, reverse=True)
             return (5, pair_card, non_pair_cards[0].rank)
-        
+
         # High Card
-        high_cards = tuple(sorted(cards, key=HandRanker.rank_value, reverse=True))
+        high_cards = tuple(
+            sorted(cards, key=HandRanker.rank_value, reverse=True))
         return (6, *high_cards)
