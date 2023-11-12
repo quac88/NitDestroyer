@@ -1,4 +1,5 @@
 from rich.progress import track
+from loguru import logger
 import time
 from cardecky import Deck
 from game import Pot, Dealer, Player, Table, Game
