@@ -171,6 +171,7 @@ class Game:
         last_raiser = None
         players_acted = set()
         start_position = (button + start_offset) % self.num_players
+        raise_count = 0
 
         while raise_occurred:
             raise_occurred = False
@@ -190,7 +191,10 @@ class Game:
                 elif player == last_raiser:
                     continue
                 else:
-                    available_actions: list[PlayerAction] = [PlayerAction.FOLD, PlayerAction.CALL, PlayerAction.RAISE]
+                    available_actions = [PlayerAction.FOLD, PlayerAction.CALL]
+                    # Allow raise only if the raise count is less than 3
+                    if raise_count < 3:
+                        available_actions.append(PlayerAction.RAISE)
 
                 action: PlayerAction = random.choice(available_actions)
                 players_acted.add(player)
@@ -215,6 +219,7 @@ class Game:
                     raise_occurred = True
                     last_raiser = player
                     players_acted.clear()
+                    raise_count += 1
             if not raise_occurred:
                 break
 
