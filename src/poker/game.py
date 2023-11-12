@@ -210,6 +210,7 @@ class Game:
                     print(f"Player {player} called {current_bet}")
                     print(f"Pot: {self.dealer.pot.total}")
                 elif action == PlayerAction.RAISE:
+                    print(f"raise_count: {raise_count}")
                     raise_amount = current_bet + round_limit
                     player.bet(amount=raise_amount, pot=self.dealer.pot)
                     print(f"Player {player} raised to {raise_amount}")
