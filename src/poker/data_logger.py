@@ -13,7 +13,7 @@ class Node:
         for child in self.children:
             yield from child
 
-class Data_Logger:
+class DataLogger:
     def __init__(self):
         self.current_node = None
         self.root = None
