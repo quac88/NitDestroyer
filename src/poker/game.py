@@ -4,6 +4,8 @@ import random
 from cardecky import Deck, HandRanker
 from enum import Enum
 
+# Configure Loguru Logger
+logger.add("game_log.log", rotation="10 MB", retention="10 days", format="{time} {level} {message}")
 
 class Player:
     def __init__(self, player_ID: int, stack: int, hand: list, status: bool, chips_in_play: int) -> None:
@@ -32,7 +34,7 @@ class Player:
         if amount > self.stack:
             # All in
             amount = self.stack
-            print(f"Player {self.player_ID} is all in!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            logger.info(f"Player {self} is all in")
         self.stack -= amount
         self.chips_in_play += amount
         pot.add_to_pot(amount=amount)
@@ -156,9 +158,6 @@ class Table:
             raise IndexError("Invalid seat index")
         self.seats[seat] = player
 
-# Configure Loguru Logger
-logger.add("game_log.log", rotation="10 MB", retention="10 days", format="{time} {level} {message}")
-
 class PlayerAction(Enum):
     """Enum for player actions."""
     FOLD = 1
@@ -167,12 +166,20 @@ class PlayerAction(Enum):
     RAISE = 4
 
 class Game:
-    def __init__(self, players, dealer, betting_limit, current_bet=0) -> None:
-        self.players = players
-        self.dealer = dealer
+    def __init__(self, num_players, start_stack=START_STACK, betting_limit=PRE_FLOP_LIMIT):
+        self.deck = Deck()
+        self.pot = Pot()
+        self.table = Table(seats=num_players)
+        self.players = [Player(player_ID=i, stack=start_stack, hand=[], status=True, chips_in_play=0) for i in range(num_players)]
+        self.dealer = Dealer(self.pot, self.deck)
         self.betting_limit = betting_limit
-        self.current_bet = current_bet
-        self.num_players = len(self.players)
+        self.current_bet = 0
+
+    def setup_game(self):
+        # Seat players, shuffle deck, etc.
+        for i, player in enumerate(self.players):
+            self.table.seat_player(player, i)
+        self.dealer.move_button(self.players)
 
     def betting_round(self, button, start_offset, round_limit) -> None:
         """Handle the logic for a round of betting."""
