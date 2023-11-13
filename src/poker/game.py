@@ -2,6 +2,7 @@ from __future__ import annotations
 from loguru import logger
 import random
 from cardecky import Deck, HandRanker
+from data_logger import DataLogger
 from enum import Enum
 
 # Configure Loguru Logger
@@ -58,6 +59,12 @@ class Player:
     def is_bust(self) -> bool:
         """Check if a player is bust."""
         return self.stack == 0
+    
+    def reset_for_new_round(self):
+        """Reset the player's state for a new round."""
+        self.hand = []
+        self.status = True
+        self.chips_in_play = 0
 
     def __hash__(self) -> int:
         """Hash a player."""
@@ -166,7 +173,8 @@ class PlayerAction(Enum):
     RAISE = 4
 
 class Game:
-    def __init__(self, num_players, start_stack=START_STACK, betting_limit=PRE_FLOP_LIMIT):
+    def __init__(self, num_players, start_stack, betting_limit):
+        self.num_players = num_players
         self.deck = Deck()
         self.pot = Pot()
         self.table = Table(seats=num_players)
@@ -176,10 +184,28 @@ class Game:
         self.current_bet = 0
 
     def setup_game(self):
-        # Seat players, shuffle deck, etc.
         for i, player in enumerate(self.players):
             self.table.seat_player(player, i)
         self.dealer.move_button(self.players)
+        self.deck.shuffle()
+
+    def post_antes(self, ante_amount):
+        """Post the antes for each player."""
+        for player in self.players:
+            if player.status:  # Post ante only if the player is active
+                player.post_ante(ante=ante_amount, pot=self.pot)
+                logger.info(f"Player {player.player_ID} posted ante of {ante_amount}")
+
+    def deal_hands(self):
+        self.dealer.deal_hand(self.players)
+
+    def deal_flop(self):
+        flop = self.dealer.deal_flop()
+        logger.info(f"Flop: {flop}")
+
+    def deal_turn(self):
+        turn = self.dealer.deal_turn()
+        logger.info(f"Turn: {turn}")
 
     def betting_round(self, button, start_offset, round_limit) -> None:
         """Handle the logic for a round of betting."""
@@ -228,10 +254,10 @@ class Game:
                     logger.info(f"Player {player} called {current_bet}")
                     logger.info(f"Pot: {self.dealer.pot.total}")
                 elif action == PlayerAction.RAISE:
-                    logger.info(f"raise_count: {raise_count}")
                     raise_amount = current_bet + round_limit
                     player.bet(amount=raise_amount, pot=self.dealer.pot)
                     logger.info(f"Player {player} raised to {raise_amount}")
+                    logger.info(f"raise_count: {raise_count}")
                     logger.info(f"Pot: {self.dealer.pot.total}")
                     current_bet = raise_amount
                     self.dealer.current_bet = raise_amount
@@ -253,6 +279,83 @@ class Game:
     def turn_betting(self, button, round_limit) -> None:
         """Turn betting."""
         self.betting_round(button=button, start_offset=1, round_limit=round_limit)
+
+    def reset_round(self):
+        self.pot.reset_pot()
+        self.current_bet = 0
+        for player in self.players:
+            player.reset_for_new_round()
+        self.dealer.board.clear()
+        
+    def check_round_completion(self):
+        """Check if the round is complete."""
+        active_players = [player for player in self.players if player.status]
+        if len(active_players) <= 1:
+            # Only one player is active, they win the pot
+            winner = active_players[0] if active_players else None
+            if winner:
+                self.pot.award_pot([winner])
+                logger.info(f"Player {winner.player_ID} won the pot as the last active player.")
+            else:
+                logger.info("No active players remaining to award the pot.")
+            return True  # Round is complete
+        return False  # Round continues
+
+    def determine_winner(self):
+        # Determine the winner(s) among active players
+        winners = self.dealer.determine_winner(players=self.players)
+
+        if winners:
+            # Award pot to the identified winners
+            pot = self.dealer.pot.total
+            logger.info(f"Pot: {pot}")
+            self.pot.award_pot(winners)
+            logger.info(f"Player(s) {winners} won the pot.")
+        else:
+            # Handle the case where no winners are identified
+            # This might occur if all players folded except one
+            remaining_player = next((p for p in self.players if p.status), None)
+            if remaining_player:
+                logger.info(f"Player {remaining_player.player_ID} wins the pot by default.")
+                pot = self.dealer.pot.total
+                logger.info(f"Pot: {pot}")
+                self.pot.award_pot([remaining_player])
+            else:
+                logger.info("No active players remaining to award the pot.")
+
+
+    def log_game_state(self, data_logger):
+        game_state = self.get_game_state()
+        data_logger.add_game_state(game_state)
+        logger.info("Game state logged")
+
+    def play_round(self, data_logger, ante_amount, pre_flop_limit, flop_limit, turn_limit):
+        self.setup_game()
+        self.post_antes(ante_amount=ante_amount)
+        self.deal_hands()
+        self.preflop_betting(button=self.dealer.button, round_limit=pre_flop_limit)
+        self.log_game_state(data_logger)
+
+        if self.check_round_completion():
+            return
+
+        self.deal_flop()
+        self.flop_betting(button=self.dealer.button, round_limit=flop_limit)
+        self.log_game_state(data_logger=data_logger)
+
+        if self.check_round_completion():
+            return
+
+        self.deal_turn()
+        self.turn_betting(button=self.dealer.button, round_limit=turn_limit)
+        self.log_game_state(data_logger=data_logger)
+
+        if self.check_round_completion():
+            return
+
+        self.determine_winner()
+        self.reset_round()
+
 
     # return game state data
     def get_game_state(self):
