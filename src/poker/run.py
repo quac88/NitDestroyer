@@ -1,5 +1,4 @@
 from rich.progress import track
-from loguru import logger
 import time
 from cardecky import Deck
 from game import Pot, Dealer, Player, Table, Game
@@ -10,10 +9,10 @@ PRE_FLOP_LIMIT = 2
 FLOP_LIMIT = 4
 TURN_LIMIT = 4
 START_STACK = 200
-NUM_ROUNDS: int = 2
+NUM_ROUNDS: int = 100
 
-def play_round(players, dealer, pot, game, button) -> None:
-    # reset each player's hand and status
+
+def play_round(players, dealer, pot, game, button) -> None:         
     for player in players:
         player.hand = []
         player.status = True
@@ -134,9 +133,16 @@ def main() -> None:
     # Create a list of arguments to pass to the play_round function
     args: list[tuple[list[Player], Dealer, Pot, Game, int]] = [(players, dealer, pot, game, button) for i in range(NUM_ROUNDS)]
         
-    # Use rich to track progress and display a progress bar
+    def enough_players_to_continue() -> bool:
+        return sum(player.stack > 0 for player in players) >= 2
+
     for arg in track(args, total=NUM_ROUNDS, description="Rounds"):
         play_round(*arg)
+
+        # Check if there are enough players to continue
+        if not enough_players_to_continue():
+            print("Not enough players to continue the round.")
+            break
     
 if __name__ == "__main__":
     # check the time it takes to run
