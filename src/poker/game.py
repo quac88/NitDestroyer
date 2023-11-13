@@ -16,6 +16,10 @@ class Player:
         """Representation of a player."""
         return str(self.player_ID)
 
+    def is_busted(self) -> bool:
+        """Check if a player is busted."""
+        return self.stack == 0
+
     def can_bet(self, amount: int) -> bool:
         """Check if a player can bet a certain amount."""
         return amount <= self.stack
@@ -25,7 +29,9 @@ class Player:
         if amount < 0:
             raise ValueError("Bet amount cannot be negative")
         if amount > self.stack:
-            raise ValueError("Bet amount cannot be larger than the player's stack")
+            # All in
+            amount = self.stack
+            print(f"Player {self.player_ID} is all in!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         self.stack -= amount
         self.chips_in_play += amount
         pot.add_to_pot(amount=amount)
@@ -236,4 +242,27 @@ class Game:
         """Turn betting."""
         self.betting_round(button=button, start_offset=1, round_limit=round_limit)
 
+    # return game state data
+    def get_game_state(self):
+        # define game state as a fixed length array of 52 cards with 0 or 1 for each card and 16 additional positions with 1,2,3,4 as options that coorespond to whether we folded, checked, called, or raised
+        # 0-51: 0 or 1 for each card
+        # 52-60: 1,2,3,4 for call, raise, check, fold, each position in the array is a player and their action, only one round of raising is allowed, maximum length of 2 turns around table to call
+        # this is preflop_betting
+        # 61-68, 1,2,3,4 for call, raise, check, fold, each position in the array is a player and their action, only one round of raising is allowed, maximum length of 2 turns around table to call
+        # flop_betting
+        # 69-77, 1,2,3,4 for call, raise, check, fold, each position in the array is a player and their action, only one round of raising is allowed, maximum length of 2 turns around table to call
+        # turn_betting
+        # 78-86, 1,2,3,4 for call, raise, check, fold, each position in the array is a player and their action, only one round of raising is allowed, maximum length of 2 turns around table to call
+        # river_betting
 
+        game_data = {
+            'current_bet': self.dealer.current_bet,
+            'board': self.dealer.board}
+        for player in self.players:
+            game_data[str(player.player_ID)] = {
+                'stack': player.stack,
+                'hand': player.hand,
+                'status': player.status,
+                'chips_in_play': player.chips_in_play
+            }
+        return game_data
