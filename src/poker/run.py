@@ -1,4 +1,5 @@
 from rich.progress import track
+from loguru import logger
 import time
 from cardecky import Deck
 from game import Pot, Dealer, Player, Table, Game
@@ -10,6 +11,9 @@ FLOP_LIMIT = 4
 TURN_LIMIT = 4
 START_STACK = 200
 NUM_ROUNDS: int = 100
+
+# Configure the logger
+logger.add("game_log.log", rotation="10 MB", retention="10 days", format="{time} {level} {message}")
 
 
 def play_round(players, dealer, pot, game, button) -> None:         
@@ -24,94 +28,93 @@ def play_round(players, dealer, pot, game, button) -> None:
     # post the antes
     for player in players:
         player.post_ante(ante=ANTE, pot=pot)
-    print(f"Players posted antes")
-    print(f"Pot: {pot.total}")
+    logger.info(f"Players posted antes. Pot: {pot.total}")
 
     # Deal the hands to players
     dealer.deal_hand(players=players)
-    print(f"Hands dealt")
+    logger.info("Hands dealt")
     # print the players' hands
     for player in players:
-        print(f"Player {player.player_ID} hand: {player.hand}")
+        logger.info(f"Player {player.player_ID} hand: {player.hand}")
 
     # Betting for pre-flop
-    print(f"Pre-flop betting")
+    logger.info("Pre-flop betting")
     game.preflop_betting(button=button, round_limit=PRE_FLOP_LIMIT)
-    print(f"End of pre-flop betting. Pot: {pot.total}")
+    logger.info(f"End of pre-flop betting. Pot: {pot.total}")
 
     # If there is only one player left, award the pot and move on to the next round
     if dealer.active_players_count(players=players) <= 1:
         winners = [player for player in players if player.status]
         for winner in winners:
-            print(f"Player {winner.player_ID} won {pot.total} chips")
+            logger.info(f"Player {winner.player_ID} won {pot.total} chips")
         pot.award_pot(winners)
         # print the winner and their stack
         for winner in winners:
-            print(f"Player {winner.player_ID} stack: {winner.stack}")
+            logger.info(f"Player {winner.player_ID} stack: {winner.stack}")
         # print the losers stack
         for player in players:
             if player not in winners:
-                print(f"Player {player.player_ID} stack: {player.stack}")
+                logger.info(f"Player {player.player_ID} stack: {player.stack}")
         pot.reset_pot()
         return
 
     # Deal the flop and begin betting round for the flop
     flop = dealer.deal_flop()
-    print(f"Flop: {flop}")
-    print(f"Flop betting")
+    logger.info(f"Flop: {flop}")
+    logger.info(f"Flop betting")
     game.flop_betting(button=button, round_limit=FLOP_LIMIT)
-    print(f"End of flop betting. Pot: {pot.total}")
+    logger.info(f"End of flop betting. Pot: {pot.total}")
 
     # If there is only one player left, award the pot and move on to the next round
     if dealer.active_players_count(players=players) <= 1:
         winners = [player for player in players if player.status]
         for winner in winners:
-            print(f"Player {winner.player_ID} won {pot.total} chips")
+            logger.info(f"Player {winner.player_ID} won {pot.total} chips")
         pot.award_pot(winners)
         # print the winner and their stack
         for winner in winners:
-            print(f"Player {winner.player_ID} stack: {winner.stack}")
+            logger.info(f"Player {winner.player_ID} stack: {winner.stack}")
         # print the losers stack
         for player in players:
             if player not in winners:
-                print(f"Player {player.player_ID} stack: {player.stack}")
+                logger.info(f"Player {player.player_ID} stack: {player.stack}")
         pot.reset_pot()
         return
 
     # Deal the turn and begin betting round for the turn
     turn = dealer.deal_turn()
-    print(f"Turn: {turn}")
-    print(f"Turn betting")
+    logger.info(f"Turn: {turn}")
+    logger.info(f"Turn betting")
     game.turn_betting(button=button, round_limit=TURN_LIMIT)
-    print(f"End of turn betting. Pot: {pot.total}")
+    logger.info(f"End of turn betting. Pot: {pot.total}")
     if dealer.active_players_count(players=players) <= 1:
         winners = [player for player in players if player.status]
         # print how much the winner won
         for winner in winners:
-            print(f"Player {winner.player_ID} won {pot.total} chips")
+            logger.info(f"Player {winner.player_ID} won {pot.total} chips")
         pot.award_pot([player for player in players if player.status])
         # print the winner and their stack
         for winner in winners:
-            print(f"Player {winner.player_ID} stack: {winner.stack}")
+            logger.info(f"Player {winner.player_ID} stack: {winner.stack}")
         # print the losers stack
         for player in players:
             if player not in winners:
-                print(f"Player {player.player_ID} stack: {player.stack}")
+                logger.info(f"Player {player.player_ID} stack: {player.stack}")
         pot.reset_pot()
     # if there is more than one player left, determine the winner
     else:
         winners = dealer.determine_winner(players=players)
         if winners:
             for winner in winners:
-                print(f"Player {winner.player_ID} won {pot.total} chips")
+                logger.info(f"Player {winner.player_ID} won {pot.total} chips")
             pot.award_pot(winners)
             # print the winner and their stack
             for winner in winners:
-                print(f"Player {winner.player_ID} stack: {winner.stack}")
+                logger.info(f"Player {winner.player_ID} stack: {winner.stack}")
             # print the losers stack
             for player in players:
                 if player not in winners:
-                    print(f"Player {player.player_ID} stack: {player.stack}")
+                    logger.info(f"Player {player.player_ID} stack: {player.stack}")
         pot.reset_pot()
 
 def main() -> None:
@@ -141,7 +144,7 @@ def main() -> None:
 
         # Check if there are enough players to continue
         if not enough_players_to_continue():
-            print("Not enough players to continue the round.")
+            logger.info("Not enough players to continue the round.")
             break
     
 if __name__ == "__main__":
@@ -149,4 +152,4 @@ if __name__ == "__main__":
     start_time = time.time()
     main()
     execution_time = time.time() - start_time
-    print(f"Execution time for {NUM_ROUNDS} rounds: {execution_time:.9f} seconds")
+    logger.info(f"Execution time for {NUM_ROUNDS} rounds: {execution_time:.9f} seconds")
