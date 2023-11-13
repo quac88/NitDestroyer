@@ -1,6 +1,6 @@
 from anytree import Node, RenderTree
 
-def build_game_state_tree(game_state):
+def build_game_state_tree(game_state) -> None:
     """Builds and returns a tree representation of the game state."""
     # Root node
     root = Node("Game State")
